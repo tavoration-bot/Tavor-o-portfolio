@@ -1,0 +1,897 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Just say Know Case Study</title>
+<link rel="stylesheet" href="../../shared/case-fonts.css">
+<link rel="stylesheet" href="../../shared/header.css">
+<script src="../../shared/header.js"></script>
+<style>
+/* Just say Know: dark page in the app's Sea glass palette (board "CS style board (Claude)", Figma node 5804:2546).
+   Same architecture as the Coro and WellCheck pages: one 1200px column, tokens as CSS variables.
+   The night-sky gradient is used only at the edges (hero panel, closing card); green stays central. */
+:root {
+  --bg:#0F2F34; --surface:#1B4A4D; --surface-strong:#29585B; --text:#E6F6F1; --text-muted:#9DB8B8; --border:#2D4D50;
+  --accent:#7FC8B8; --accent-hover:#A5DACE; --accent-soft:#1F4446; --on-accent:#0F2F34;
+  --ink:#061A1C; --border-strong:#3A6064; /* ink = near-black green, added so diagrams and bubbles sit darker than the app's own greens */
+  --sky:linear-gradient(180deg, #1B4A4D 0%, #1B4A4D 50%, #281D40 100%);
+  --font-heading:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --size-h1:48px; --size-h2:32px; --size-h3:22px; --size-body:17px; --size-small:14px; --size-eyebrow:12px;
+  --weight-regular:400; --weight-medium:500; --weight-bold:600; --weight-heading:500;
+  --leading-tight:1.2; --leading-body:1.6; --tracking-eyebrow:.08em;
+  --space-xs:4px; --space-s:8px; --space-m:16px; --space-l:32px; --space-xl:64px; --space-2xl:120px;
+  --container:1200px; --container-text:720px;
+  --radius-s:8px; --radius-m:12px; --radius-l:20px; --radius-phone:34px;
+  --phone-radius:8.3% / 3.86%; /* the exported screens' own rounded corner (about 65px on a 780px-wide PNG), so the frame hugs it at any width */
+  --shadow-card:0 2px 6px rgba(0,0,0,.25), 0 12px 40px rgba(0,0,0,.35);
+  --shadow-float:0 8px 32px rgba(0,0,0,.45);
+  --bubble-bg:var(--ink); --screen-frame:#2D4D50;
+  color-scheme:dark;
+}
+
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:var(--size-body); line-height:var(--leading-body); -webkit-font-smoothing:antialiased; }
+.page { max-width:var(--container); margin:0 auto; padding-block:var(--space-xl) var(--space-2xl);
+  padding-left:max(24px, env(safe-area-inset-left, 0px)); padding-right:max(24px, env(safe-area-inset-right, 0px)); }
+.page > section + section { margin-top:var(--space-2xl); }
+h1, h2, h3 { font-family:var(--font-heading); line-height:var(--leading-tight); text-wrap:balance; margin:0; }
+h1 { font-size:var(--size-h1); font-weight:700; letter-spacing:-.02em; max-width:20ch; }
+h2 { font-size:var(--size-h2); font-weight:var(--weight-heading); letter-spacing:-.01em; }
+h3 { font-size:var(--size-h3); font-weight:var(--weight-heading); }
+p { margin:0; }
+.prose { max-width:var(--container-text); display:grid; gap:var(--space-m); }
+.muted { color:var(--text-muted); }
+.eyebrow { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--accent); margin-bottom:var(--space-s); }
+a { color:var(--accent); text-underline-offset:3px; }
+a:hover { color:var(--accent-hover); }
+a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+
+/* 1 Header */
+.crumbs { font-size:14px; line-height:22.4px; color:var(--text); margin-bottom:var(--space-l); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.crumbs__field { display:inline-flex; align-items:center; gap:6px; }
+.crumbs__field svg { width:16px; height:16px; display:block; flex:none; }
+.crumbs a { color:#fff; text-decoration:none; transition:color .15s ease; }
+.crumbs a:hover { color:var(--accent); }
+.header { display:grid; gap:var(--space-m); }
+.role { font-size:var(--size-small); color:var(--text-muted); font-weight:var(--weight-medium); }
+.chips { display:flex; flex-wrap:wrap; gap:var(--space-s); list-style:none; margin:var(--space-s) 0 0; padding:0; }
+.chips li { font-size:13px; font-weight:var(--weight-medium); background:var(--surface-strong); border-radius:999px; padding:4px 12px; }
+
+/* 2 Hero: three phone slots on the night-sky gradient */
+.hero { margin-top:var(--space-xl) !important; }
+.hero__panel { background:var(--sky); border-radius:var(--radius-l); padding:var(--space-xl) var(--space-l) 0; overflow:hidden;
+  display:grid; grid-template-columns:repeat(3, minmax(0, 240px)); justify-content:center; align-items:end; gap:var(--space-l); }
+.hero__panel .slot { border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom:0; }
+.hero__shot { display:block; width:100%; height:auto; aspect-ratio:780/1682; object-fit:cover; object-position:top; }
+.hero__panel > :nth-child(2) { margin-bottom:0; } /* the middle screen sits fully inside the panel, so its bottom navigation shows */
+.hero__panel > :nth-child(1), .hero__panel > :nth-child(3) { transform:translateY(16px); }
+
+/* screen slots: reserved until the new UI screens are designed */
+.slot { position:relative; width:100%; border-radius:var(--radius-phone); border:1.5px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  background:color-mix(in srgb, var(--ink) 70%, transparent); display:grid; place-content:center; justify-items:center; gap:6px; text-align:center; padding:24px; }
+.slot__eyebrow { font-size:11px; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--accent); }
+.slot__name { font-family:var(--font-heading); font-size:17px; line-height:1.3; color:var(--text); text-wrap:balance; }
+
+/* 5 asymmetric */
+.split { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); align-items:start; }
+.split > * { min-width:0; }
+.cut { margin-top:var(--space-m); border-left:2px solid var(--border); padding-left:var(--space-m); font-size:var(--size-small); color:var(--text-muted); }
+.note { max-width:var(--container-text); font-size:var(--size-small); color:var(--text-muted); border-left:2px solid var(--accent); padding-left:var(--space-m); margin-top:var(--space-m); }
+
+/* rhythm break */
+.statement { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding-block:var(--space-xl); }
+.statement p { font-family:var(--font-heading); font-size:clamp(28px, 4.2vw, 48px); line-height:1.15; font-weight:var(--weight-heading); letter-spacing:-.02em; max-width:18ch; text-wrap:balance; }
+.statement p span { color:var(--accent); display:block; }
+
+/* parallel cards */
+.section-head { display:grid; gap:var(--space-s); margin-bottom:var(--space-l); max-width:var(--container-text); }
+.cards { display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-m); }
+.card { border:1px solid var(--border); border-radius:var(--radius-m); padding:24px; display:grid; gap:var(--space-s); align-content:start; background:var(--surface); }
+.card__n { font-family:var(--font-heading); font-size:14px; color:var(--accent); font-weight:var(--weight-heading); }
+.card h3 { font-size:19px; }
+.card p { font-size:15px; color:var(--text-muted); }
+.card__where { font-size:12px; color:var(--accent); font-weight:var(--weight-medium); margin-top:var(--space-xs); }
+.cards--tight { margin-bottom:var(--space-xl); }
+
+/* chapters and flows */
+.chapter-head { border-top:1px solid var(--border); padding-top:var(--space-l); margin-bottom:var(--space-xl); display:grid; gap:var(--space-s); }
+.chapter-head > * { max-width:820px; }
+.chapter-head h2 { font-size:clamp(28px, 3.4vw, 40px); }
+/* the animated word: it dips down and rises behind its own window, with a slight tilt, as in the original site */
+.mixword { display:block; width:fit-content; overflow:hidden; font-weight:var(--weight-bold); font-size:clamp(60px, 9.5vw, 108px); line-height:1.2; letter-spacing:-.02em; padding:0 .06em .06em 0; }
+.mixword__in { display:inline-block; background:linear-gradient(160deg, var(--accent-hover) 0%, #3AAFA3 100%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; transform-origin:50% 60%; animation: mix-bob 1.5s ease-in-out infinite, mix-tilt .98s ease-in-out infinite alternate; }
+.mixsub { display:block; margin-top:.15em; }
+@keyframes mix-bob { 0%, 100% { translate:0 0; } 50% { translate:0 40%; } }
+@keyframes mix-tilt { from { rotate:-1.2deg; } to { rotate:1.2deg; } }
+@media (prefers-reduced-motion: reduce) { .mixword__in { animation:none; } }
+.chapter-head .muted { font-size:18px; line-height:1.6; color:#B8D4CF; max-width:680px; margin-top:var(--space-s); }
+.chapter-head .eyebrow { margin:0; }
+.moment { display:grid; gap:var(--space-l); }
+.moment + .moment { margin-top:var(--space-2xl); }
+.moment__copy { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); }
+.moment__copy > * { min-width:0; }
+.stepnum { font-size:15px; color:var(--text-muted); font-style:italic; font-weight:var(--weight-medium); margin-bottom:var(--space-xs); }
+.flowno { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--accent); margin-bottom:var(--space-s); }
+.bridge { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); background:var(--surface); border-radius:var(--radius-l); padding:var(--space-xl) var(--space-l); }
+.bridge > * { min-width:0; }
+
+/* mini flow diagram (Coro component, recoloured to Sea glass, scaled down to 3 to 5 nodes) */
+.flow { display:grid; gap:var(--space-m); }
+.flow__card { background:var(--ink); border:1px solid var(--border); border-radius:var(--radius-l); padding:var(--space-l); overflow-x:auto; }
+.flow__legend { display:flex; flex-wrap:wrap; gap:var(--space-m) var(--space-l); margin:0 0 var(--space-m); padding:0; list-style:none; }
+.flow__legend li { display:flex; align-items:center; gap:var(--space-s); font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--text-muted); font-weight:var(--weight-medium); }
+.swatch { width:18px; height:12px; border-radius:4px; flex:none; }
+.swatch--user { background:var(--bg); border:1px solid var(--border-strong); }
+.swatch--app { background:var(--surface); border:1px solid var(--accent); }
+.swatch--choice { background:var(--accent); }
+.swatch--link { border:1px dashed var(--text-muted); }
+.flow__svg { display:block; height:auto; overflow:visible; }
+.flow__svg text { font-family:var(--font-body); }
+.node { fill:var(--bg); stroke:var(--border-strong); stroke-width:1; }
+.node--app { fill:var(--surface); stroke:var(--accent); stroke-width:1.5; }
+.node--link { fill:none; stroke:var(--text-muted); stroke-dasharray:5 4; }
+.node--aside { fill:none; stroke:var(--text-muted); stroke-dasharray:5 4; }
+.wire--aside { stroke-dasharray:4 4; }
+.node--choice { fill:var(--accent); stroke:var(--accent); }
+.on-accent .n-step { fill:color-mix(in srgb, var(--on-accent) 75%, transparent); }
+.on-accent .n-title { fill:var(--on-accent); }
+.on-accent .n-sub { fill:color-mix(in srgb, var(--on-accent) 85%, transparent); }
+.n-step { font-size:10px; letter-spacing:.1em; font-weight:600; fill:var(--text-muted); }
+.n-title { font-size:14px; font-weight:600; fill:var(--text); }
+.n-sub { font-size:12px; fill:var(--text-muted); }
+.wire { fill:none; stroke:var(--text-muted); stroke-width:1.25; stroke-linecap:round; stroke-linejoin:round; opacity:.7; }
+.head { fill:var(--text-muted); opacity:.7; }
+.flow__list { display:none; margin:0; padding:0; list-style:none; }
+.flow__list li { position:relative; padding:0 0 var(--space-m) 28px; }
+.flow__list li::before { content:""; position:absolute; left:4px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--ink); border:2px solid var(--text-muted); }
+.flow__list li::after { content:""; position:absolute; left:9px; top:32px; bottom:0; width:1.5px; background:var(--border); }
+.flow__list li:last-child::after { display:none; }
+.fstep { border-radius:var(--radius-m); padding:12px 14px; background:var(--bg); border:1px solid var(--border-strong); }
+.fstep--app { background:var(--surface); border-color:var(--accent); }
+.fstep--link { border-style:dashed; }
+.fstep--choice { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.fstep--choice .fstep__meta, .fstep--choice .fstep__sub { color:color-mix(in srgb, var(--on-accent) 80%, transparent); }
+.fstep__meta { display:flex; justify-content:space-between; font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--text-muted); margin-bottom:4px; }
+.fstep__title { font-size:15px; font-weight:600; }
+.fstep__sub { font-size:13px; color:var(--text-muted); }
+
+/* annotated phone screen */
+.ann { --img-max:300px; position:relative; display:grid; grid-template-columns:minmax(0, var(--img-max)) 300px; column-gap:40px; justify-content:center; }
+.ann__img { position:relative; min-width:0; }
+.ann__img img { display:block; width:100%; height:auto; border:1px solid var(--screen-frame); border-radius:var(--phone-radius); box-shadow:var(--shadow-card); background:var(--surface); }
+
+/* a screen that scrolls (flow 5 profile): a phone-sized window over the long screen.
+   Status bar and tab bar stay put, the scrollbar is drawn live on the left (the RTL side, as on the app's other screens). */
+.pscreen { position:relative; width:100%; aspect-ratio:780/1682; overflow:hidden; isolation:isolate; border:1px solid var(--screen-frame); border-radius:var(--phone-radius); box-shadow:var(--shadow-card); background:var(--surface); }
+.pscroll { position:absolute; inset:0; overflow-y:auto; overscroll-behavior:auto; scrollbar-width:none; -ms-overflow-style:none; border-radius:inherit; }
+.pscroll::-webkit-scrollbar { display:none; }
+.pscroll:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.pcontent { position:relative; width:100%; }
+/* a screen with a short looping animation (flow 5, staff view): the clean map, the photo that grows and shrinks, and the two exported
+   frames (photo large / photo small) laid on top and faded in and out, so the resting states are exactly the exported screens */
+.ann__img img.ann__frame { position:absolute; left:0; top:0; width:100%; height:100%; z-index:1; box-shadow:none !important; background:none; pointer-events:none; }
+.ann__img img.ann__frame--small { opacity:0; }
+.ann__stage, .ann__tapbox { position:absolute; inset:1px; z-index:1; border-radius:var(--phone-radius); overflow:hidden; pointer-events:none; }
+.ann__img img.ann__sprite { position:absolute; left:20.256%; top:37.693%; width:59.487%; height:auto; border:0; border-radius:0; background:none; box-shadow:none !important; filter:drop-shadow(0 10px 18px rgba(0,0,0,.38)); transform-origin:50% 50%; }
+.ann__tap { position:absolute; width:9.5%; aspect-ratio:1; border-radius:50%; transform:translate(-50%,-50%) scale(.5); opacity:0; border:2px solid rgba(230,246,241,.9); background:rgba(230,246,241,.28); }
+.ann__img .pscreen img { display:block; width:100%; height:auto; border:0; border-radius:0; box-shadow:none; background:none; }
+.pstatus, .pnav { position:absolute; left:0; width:100%; pointer-events:none; z-index:3; }
+.pstatus { top:0; } .pnav { bottom:0; }
+.pbar { position:absolute; z-index:4; left:4.1%; top:11.3%; bottom:13.5%; width:1.03%; min-width:3px; border-radius:99px; background:rgba(162,198,194,.3); pointer-events:none; }
+.pbar i { position:absolute; left:0; right:0; top:0; border-radius:inherit; background:#A2C6C2; }
+.pscroll__hint { position:absolute; top:100%; left:0; right:0; margin-top:12px; text-align:center; font-size:13px; line-height:1.4; color:var(--text-muted); }
+.bubble.is-off { opacity:.5; }
+.bubble { transition:opacity .25s ease; }
+.ann__dot { position:absolute; width:24px; height:24px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:700;
+  display:grid; place-items:center; transform:translate(-50%,-50%); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); z-index:2; }
+.ann__lines { position:absolute; inset:0; pointer-events:none; overflow:visible; z-index:1; }
+.ann__lines line { stroke:var(--accent); stroke-width:1.5; stroke-dasharray:6 4; }
+.ann__col { position:relative; min-width:0; }
+.ann--L { grid-template-columns:300px minmax(0, var(--img-max)) 300px; }
+.ann--L .ann__img { grid-column:2; grid-row:1; }
+.ann--L .ann__col--left { grid-column:1; grid-row:1; }
+.ann--L .ann__col--right { grid-column:3; grid-row:1; }
+.ann--L.ann--noR { grid-template-columns:300px minmax(0, var(--img-max)); }
+.bubble { position:absolute; left:0; right:0; background:var(--bubble-bg); border:1.5px solid var(--accent); border-radius:var(--radius-m); padding:14px 16px; box-shadow:var(--shadow-float); transform:translateY(-50%); }
+.bubble__t { display:flex; gap:8px; align-items:baseline; font-weight:var(--weight-bold); font-size:15px; color:var(--accent); line-height:1.3; }
+.bubble__n { flex:none; font-size:11px; width:18px; height:18px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:inline-grid; place-items:center; transform:translateY(-1px); }
+.bubble__d { font-size:13.5px; color:var(--text); line-height:1.45; margin-top:4px; }
+.bubble__i { font-size:13px; font-weight:var(--weight-bold); color:var(--accent); line-height:1.4; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+.legend { display:none; list-style:none; margin:var(--space-m) 0 0; padding:0; gap:12px; }
+
+/* looping prototype: one phone plays the flow, the numbered steps beside it follow along */
+.loop { display:grid; grid-template-columns:minmax(220px, 300px) minmax(0, 400px); gap:var(--space-xl); justify-content:center; align-items:center; }
+.loop__phone { text-align:center; }
+.loop__screen { position:relative; width:100%; aspect-ratio:780/1682; }
+.loop__screen img { position:absolute; inset:0; width:100%; height:100%; display:block; border:1px solid var(--screen-frame); border-radius:var(--phone-radius); box-shadow:var(--shadow-card); background:var(--surface); opacity:0; }
+.loop__screen img:first-child { opacity:1; }
+.loop__screen img.loop__head { clip-path:inset(0 0 88.2% 0); }
+.loop__list { position:absolute; inset:0; opacity:0; overflow:hidden; }
+.loop__screen img.loop__lst { border:0; border-radius:0; box-shadow:none; background:none; inset:auto; left:0; top:0; width:100%; height:108.799%; opacity:1; will-change:transform; }
+.loop__bar, .loop__thumb { position:absolute; border-radius:999px; opacity:0; }
+.loop__bar { background:rgba(255,255,255,.155); }
+.loop__thumb { background:rgb(161,196,193); will-change:transform; }
+.loop__screen img.loop__hex { border:0; border-radius:0; box-shadow:none; background:none; inset:auto; will-change:transform; }
+.loop__ctl { margin-top:var(--space-s); font:inherit; font-size:13px; color:var(--text-muted); background:none; border:1px solid var(--screen-frame); border-radius:999px; padding:5px 16px; cursor:pointer; }
+.loop__ctl:hover { color:var(--text); border-color:var(--accent); }
+.loop__steps { list-style:none; margin:0; padding:0; display:grid; gap:var(--space-s); }
+.loop__step { display:grid; grid-template-columns:22px 1fr; gap:10px; align-items:start; width:100%; text-align:left; font:inherit; color:inherit; background:none; border:0; border-left:2px solid transparent; border-radius:2px; padding:var(--space-s) var(--space-m); cursor:pointer; opacity:.5; transition:opacity .35s ease, border-color .35s ease; }
+.loop__step:hover { opacity:.85; }
+.loop__step.is-on { opacity:1; border-left-color:var(--accent); }
+.loop__step .bubble__n { width:20px; height:20px; margin-top:2px; transform:none; }
+.loop__step b { display:block; font-size:16px; line-height:1.3; }
+.loop__step span.d { display:block; font-size:14px; color:var(--text-muted); line-height:1.5; margin-top:3px; }
+
+/* four-step row (calculator): the static screens */
+.steps { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--space-l) var(--space-m); counter-reset:s; }
+.step { display:grid; gap:var(--space-s); align-content:start; }
+.step .slot { aspect-ratio:390/844; }
+.step img { display:block; width:100%; height:auto; border:1px solid var(--screen-frame); border-radius:var(--phone-radius); box-shadow:var(--shadow-card); background:var(--surface); }
+.step__cap { display:grid; grid-template-columns:22px 1fr; gap:10px; align-items:start; }
+.step__cap .bubble__n { width:20px; height:20px; margin-top:2px; transform:none; }
+.step__cap b { display:block; font-size:15px; line-height:1.3; }
+.step__cap span.d { display:block; font-size:13.5px; color:var(--text-muted); line-height:1.45; margin-top:2px; }
+
+/* reflection */
+.impact { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); }
+.impact > * { min-width:0; }
+.lessons { display:grid; gap:var(--space-m); }
+.lesson { border-top:1px solid var(--border); padding-top:var(--space-m); display:grid; gap:4px; }
+.lesson strong { font-weight:var(--weight-bold); }
+.lesson span { color:var(--text-muted); font-size:15px; }
+
+/* the interface: six short cards, each with one component from the app next to a short paragraph */
+.ui-divider { border:0; height:1px; background:var(--border-strong); margin:var(--space-2xl) 0; }
+/* a light, framed chapter of its own: a different subject (visual design choices), so a different ground and dark text */
+.ui { --ui-ink:#0F2F34; --ui-muted:#47676A; --ui-accent:#0F4F48; --ui-bg:rgba(232,243,239,.6); --ui-card:#FFFFFF; --ui-line:#CBE0D9;
+  background:var(--ui-bg); color:var(--ui-ink); border-radius:var(--radius-l); padding:var(--space-xl) 48px calc(var(--space-xl) + 8px); }
+.ui .eyebrow { color:var(--ui-accent); }
+.ui__head { margin-bottom:var(--space-l); max-width:720px; }
+.ui__lead { margin-top:14px; color:#17383C; font-size:19px; line-height:1.55; }
+.ui__grid { display:grid; gap:var(--space-l) 28px; }
+.ui__row { display:grid; gap:28px; align-items:stretch; }
+.ui__row--3 { grid-template-columns:355fr 395fr 395fr; }
+.ui__row--2 { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.uicard { background:var(--ui-card); border:1px solid var(--ui-line); box-shadow:0 1px 2px rgba(15,47,52,.06), 0 10px 28px rgba(15,47,52,.08); border-radius:var(--radius-l); padding:20px 20px 24px; display:grid; align-content:start; gap:18px; min-width:0; }
+.uicard__shot { border-radius:var(--radius-m); overflow:hidden; background:var(--surface); }
+.uicard__shot img { display:block; width:100%; height:100%; object-fit:cover; }
+.uicard__pair { display:grid; grid-template-columns:1fr 1fr; gap:18px; aspect-ratio:544 / 364; }
+.uicard__pair .uicard__shot { aspect-ratio:auto !important; height:100%; }
+.uicard__txt { display:grid; gap:8px; align-content:start; }
+.uicard h3 { font-size:19px; text-wrap:pretty; line-height:1.25; }
+.uicard p { color:var(--ui-muted); font-size:15px; line-height:1.55; }
+
+/* more work (same switch as the other case pages) */
+.lbl { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--text-muted); margin:0 0 16px; text-align:center; }
+.switch { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; }
+.sw { display:flex; flex-direction:column; align-items:center; gap:6px; width:120px; text-align:center; text-decoration:none; color:var(--text-muted); font-size:13px; line-height:1.6; }
+.sw .chip { width:64px; height:64px; border-radius:18px; background:#fff; color:#76757D; display:grid; place-items:center; transition:transform .2s ease; }
+.sw .chip svg { width:36px; height:36px; display:block; fill:currentColor; stroke:none; }
+.sw--cyber .chip, .sw--field .chip { border-radius:16px; }
+.sw--cyber .chip svg { width:37px; height:37px; }
+.sw--fin .chip svg { width:38px; height:38px; }
+.sw.on { color:var(--text); font-weight:700; }
+.sw.on .chip { background:linear-gradient(to right,#0F2F34,#29585B); box-shadow:inset 0 0 0 4px #fff; color:#fff; }
+.sw.soon { cursor:default; }
+.sw:not(.on):not(.soon):hover { color:var(--text); }
+.sw:not(.on):not(.soon):hover .chip { transform:translateY(-2px); }
+.sw:focus-visible { outline:2px solid var(--text); outline-offset:4px; border-radius:12px; }
+
+/* CTA: the night-sky gradient closes the page */
+.cta { background:var(--sky); border-radius:var(--radius-l); padding:var(--space-xl) var(--space-l); display:grid; gap:var(--space-m); justify-items:start; }
+.cta__links { display:flex; flex-wrap:wrap; gap:var(--space-s) var(--space-l); font-weight:var(--weight-medium); }
+.cta__links span { user-select:all; }
+
+/* No orphans: never leave a single word alone on the last line */
+p, li, h1, h2, h3, .bubble__t, .bubble__d, .bubble__i, .legend b, .legend span, .step__cap b, .step__cap span, .loop__step b, .loop__step span { text-wrap: pretty; }
+
+/* Hover zoom: every screen grows a little on hover so its UI reads better. Pointer devices only. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .slot, .step img, .hero__shot, .ann__img { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; transform-origin: center; }
+  .step .slot:hover, .step img:hover { transform: scale(1.08); box-shadow: var(--shadow-float); position: relative; z-index: 3; }
+  .hero__shot:hover { transform: scale(1.04); }
+  /* the scrolling screen is for scrolling, so it does not zoom */
+  .ann__img:not(.ann__img--scroll):hover { transform: scale(1.12); z-index: 5; }
+  .ann__img:not(.ann__img--scroll):hover img { box-shadow: var(--shadow-float); }
+  .ann__col .bubble, .ann__lines { transition: opacity .25s ease; }
+  .ann:has(.ann__img:not(.ann__img--scroll):hover) .ann__lines { opacity: 0; }
+  .ann:has(.ann__img:not(.ann__img--scroll):hover) .bubble { opacity: .35; }
+  .ann__img:not(.ann__img--scroll) { cursor: zoom-in; }
+}
+
+@media (max-width: 900px) { .cards { grid-template-columns:1fr; } }
+@media (max-width: 900px) { .steps { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width: 767px) { .loop { grid-template-columns:1fr; gap:var(--space-l); } .loop__phone { max-width:260px; margin-inline:auto; width:100%; } }
+@media (max-width: 1100px) {
+  .ann--L { grid-template-columns:minmax(0,1fr) minmax(0, var(--img-max)) minmax(0,1fr); column-gap:24px; }
+  .ann--L.ann--noR { grid-template-columns:minmax(0,1fr) minmax(0, var(--img-max)); }
+  .ann { grid-template-columns:minmax(0, var(--img-max)) 220px; column-gap:24px; }
+}
+.ann-pair { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:24px; }
+.ann-pair .ann--L.ann--noR { grid-template-columns:minmax(0,1fr) minmax(0,var(--img-max)); column-gap:24px; justify-content:end; }
+.ann-pair .ann { grid-template-columns:minmax(0,var(--img-max)) minmax(0,1fr); column-gap:24px; justify-content:start; }
+@media (max-width: 960px) { .ann-pair { grid-template-columns:minmax(0,1fr); row-gap:56px; } .ann-pair .ann--L.ann--noR, .ann-pair .ann { justify-content:center; } }
+@media (max-width: 767px) {
+  :root { --size-h1:34px; --size-h2:26px; --size-h3:20px; --size-body:16px; --space-2xl:80px; --space-xl:40px; }
+  .page { padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+  .split, .moment__copy, .impact, .bridge { grid-template-columns:1fr; gap:var(--space-m); }
+  .bridge { padding:var(--space-l) var(--space-m); }
+  .hero__panel { grid-template-columns:minmax(0,1fr); padding:var(--space-l) var(--space-m) var(--space-l); }
+  .hero__panel > :nth-child(1), .hero__panel > :nth-child(3) { display:none; }
+  .hero__panel .slot { border-radius:var(--radius-phone); border-bottom:1.5px dashed color-mix(in srgb, var(--accent) 45%, transparent); max-width:260px; margin-inline:auto; }
+  .hero__panel .hero__shot { max-width:260px; margin-inline:auto; }
+  .hero__panel > :nth-child(2) { margin-bottom:0; }
+  .ann, .ann--L, .ann--L.ann--noR, .ann-pair .ann, .ann-pair .ann--L.ann--noR { grid-template-columns:minmax(0,1fr); justify-items:center; }
+  .ann__img { width:100%; max-width:var(--img-max); }
+  .ann__img--scroll { margin-bottom:56px; } /* room for the "This screen scrolls" caption, which hangs below the screen */
+  .ann--L .ann__img { grid-column:1; }
+  .ann__col, .ann__lines { display:none; }
+  .legend { display:grid; width:100%; }
+  .legend li { display:grid; grid-template-columns:22px 1fr; gap:10px; font-size:14px; }
+  .legend .bubble__n { width:20px; height:20px; margin-top:2px; }
+  .legend b { display:block; }
+  .legend span.d { color:var(--text-muted); font-size:13px; }
+  .legend span.i { display:block; color:var(--accent); font-weight:var(--weight-bold); font-size:13px; margin-top:2px; }
+  .flow__card { padding:var(--space-m); }
+  .flow__svg, .flow__legend { display:none; }
+  .flow__list { display:block; }
+  .cta { padding:var(--space-l) var(--space-m); }
+}
+@media (max-width:980px) { .ui__row--3 { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:980px) { .ui { padding:var(--space-l) 28px 36px; } }
+@media (max-width:640px) { .ui__row--3, .ui__row--2 { grid-template-columns:minmax(0,1fr); } .ui { padding:28px 16px 28px; } .ui__grid { gap:20px; } .ui__row { gap:20px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<site-header current="just-say-know" root="../../"></site-header>
+<main class="page">
+
+  <!-- 1 Opening -->
+  <section class="header" aria-labelledby="title">
+    <nav class="crumbs" aria-label="Breadcrumb"><span class="crumbs__field"><svg aria-hidden="true"><use href="#sw-health"/></svg>Public health</span><span aria-hidden="true">·</span><a href="../../">All work</a></nav>
+    <h1 id="title">Harm-reduction app, for healthier safer experience</h1>
+    <p class="role">Creator and UX/UI Designer, Just say Know</p>
+    <ul class="chips" aria-label="Tags"><li>Harm reduction</li><li>Public health</li><li>Mobile-first</li><li>Written with doctors</li></ul>
+  </section>
+
+  <section class="hero" aria-label="Three screens from the app">
+    <div class="hero__panel" data-hero></div>
+  </section>
+
+  <section class="prose" aria-label="Summary">
+    <p class="lede" style="font-size:20px;line-height:1.55">Just say Know is a Hebrew harm-reduction app for people who use substances. It gives short, judgment-free guidance, written by doctors*, for the time before use, when a good decision is still possible. I created the app and designed it with the Israeli Society of Addiction Medicine (ILSAM). Here it follows the user's journey: checking in, planning, learning about the substances they are taking, and being able to get help while under the influence without any further action.</p>
+    <p class="note">* The medical texts are written by doctors and approved legally.</p>
+  </section>
+
+  <!-- 2 The problem -->
+  <section class="split" aria-labelledby="problem">
+    <div>
+      <p class="eyebrow">The problem</p>
+      <h2 id="problem">When asking was risky, mistakes could cost lives</h2>
+    </div>
+    <div class="prose">
+      <p>For years, public talk about substance use meant talk about addiction. Schools, organizations and the Ministry of Health all spoke about the danger of becoming addicted, and no one spoke to the one-time or first-time user, whether sixteen or fifty, where the biggest mistakes can happen: they rely on stories they heard, not on an informed choice. Talking openly was not legitimate anyway, and even looking for information felt risky, so what people knew passed through closed groups and word of mouth.</p>
+      <p>The fear went further than curiosity. Someone who felt unwell at a party could hesitate to go to a hospital, afraid of being reported for breaking the law. Without reliable information, and without a place to ask, people made mistakes that could cost them their health, or their lives.</p>
+      <p>Things have changed since, but judgment-free information based on evidence, not on someone's experience, is still hard to find in Hebrew. Harm reduction starts from the opposite place: it meets people where they are, without judgment or coercion. The app makes that practical: easy to reach, easy to read, and useful before the journey, not only after it.</p>
+      <p class="cut">Harm reduction: practical strategies and principles that reduce the negative consequences of substance use, while recognizing it as human and as part of many people's lives.</p>
+    </div>
+  </section>
+
+  <!-- Rhythm break -->
+  <section class="statement" aria-label="Guiding principle">
+    <p><span>How to prepare better.</span></p>
+  </section>
+
+  <!-- 3 Structure: three moments -->
+  <section aria-labelledby="moments">
+    <div class="section-head">
+      <p class="eyebrow">The structure</p>
+      <h2 id="moments">One journey, three moments</h2>
+      <p class="muted">The best way to avoid a bad and dangerous experience is to build knowledge beforehand. Each of the three moments gives the user a piece of it.</p>
+    </div>
+    <div class="cards">
+      <article class="card"><p class="card__n">1</p><h3>Before: check in and plan</h3><p>Start from how you feel, then set the plan for the journey: what, when and with whom.</p><p class="card__where">Flows 1 and 2</p></article>
+      <article class="card"><p class="card__n">2</p><h3>Prepare with knowledge</h3><p>Short, doctor-written guidance on combinations and on ten rules of thumb, ready before the party.</p><p class="card__where">Flows 3 and 4</p></article>
+      <article class="card"><p class="card__n">3</p><h3>At the party</h3><p>Set up what helps when a phone is not at hand, so that safe-space staff can find you.</p><p class="card__where">Flow 5</p></article>
+    </div>
+  </section>
+
+  <!-- 4 Chapter 1: Before -->
+  <section aria-labelledby="ch1">
+    <div class="chapter-head">
+      <p class="eyebrow">Chapter 1</p>
+      <h2 id="ch1">Start from how you feel, then plan the journey</h2>
+      <p class="muted">The app starts with the person: how they feel today, and what they are planning.</p>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="flowno">Flow 1 · Check-in</p><p class="stepnum">"How am I feeling today?"</p><h3>A check-in before anything else</h3></div>
+        <p>The journey starts with one short question: how are you today? Knowing how you feel, and asking yourself the right questions first, is where preparing begins. The person can pick one mood or several, and since a list can never hold everything, it also invites them to say it in their own words, which is optional. It sets a calm tone before any information appears, and it starts the app from the person, not from the substance.</p>
+      </div>
+      <div class="flow" data-flow="f1"></div>
+      <div class="ann ann--L" data-screen="s1"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="flowno">Flow 2 · Plan a journey</p><p class="stepnum">"What's the plan for this journey?"</p><h3>A plan for the journey, with every field optional</h3></div>
+        <p>Planning is where most of the app's later help comes from. The plan asks four things: what, when, where and with whom, and every one of them is optional. The substances come first, as a set where several can be chosen. When more than one is picked, a soft line says the combination can be checked, and it never blocks the plan. The jar in the top corner holds what the person has saved.</p>
+      </div>
+      <div class="flow" data-flow="f2"></div>
+      <div class="ann-pair">
+        <div class="ann ann--L ann--noR" data-screen="s2"></div>
+        <div class="ann" data-screen="s2b"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Chapter 2: Knowledge -->
+  <section aria-labelledby="ch2">
+    <div class="chapter-head">
+      <p class="eyebrow">Chapter 2</p>
+      <h2 id="ch2"><span class="mixword"><span class="mixword__in">Mixing?</span></span> <span class="mixsub">What to consider for a specific combination</span></h2>
+      <p class="muted">The mix calculator gives information about a specific combination of substances, and what to keep in mind before and after.</p>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="flowno">Flow 3 · Mix calculator</p><p class="stepnum">"Is it safe to mix these two?"</p><h3>Pick a substance or two and see what to consider</h3></div>
+        <p>The calculator opens on every substance a person can ask about, each shown by its name. Pressing and holding one opens that substance's own card. Choosing a second makes a Calculate combination button appear, and one tap on it opens a card with guidance for that pair, for before and after use. Because the guidance covers both sides of the journey, the calculator is also reachable from the plan.</p>
+      </div>
+      <div class="flow" data-flow="f3"></div>
+      <div class="loop" data-loop="calc"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="flowno">Flow 4 · Ten rules of thumb</p><p class="stepnum">"Just the short version, please."</p><h3>Ten rules of thumb, at your fingertips</h3></div>
+        <p>The ten rules of thumb are the app's shortest guidance. Each rule has its own subject and its own icon: the person picks the one they care about, reads a card of a few lines, and can save it to the jar.</p>
+      </div>
+      <div class="flow" data-flow="f4"></div>
+      <div class="ann-pair">
+        <div class="ann ann--L ann--noR" data-screen="s4"></div>
+        <div class="ann" data-screen="s4b"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 Bridge: real-time help -->
+  <section class="bridge" aria-labelledby="bridge">
+    <div>
+      <p class="eyebrow">Real-time help, planned ahead</p>
+      <h2 id="bridge">At a party, a phone is not always at hand</h2>
+    </div>
+    <div class="prose">
+      <p>At a party, a person may not have a phone within reach, or may not be in a state to work through an app. So the app's real-time help is built the other way around: everything is arranged ahead of time, and in the moment there is almost nothing to operate.</p>
+      <p>Autopilot works this way too. The user sets a window of time in advance, so that nothing needs doing when it begins. The safe-space profile follows the same rule. A safe space is a staffed, calm area at an event, and its team does not only wait there: they walk around the event looking for anyone who needs help, because someone in need may not be able to come to them. The profile is filled in before the event, so that staff can find the person without the person needing to do anything.</p>
+    </div>
+  </section>
+
+  <!-- 7 Chapter 3: At the party -->
+  <section aria-labelledby="ch3">
+    <div class="chapter-head">
+      <p class="eyebrow">Chapter 3</p>
+      <h2 id="ch3">A temporary profile that helps staff find you</h2>
+      <p class="muted">A safe space is a staffed, calm area at an event, where the team also walks around looking for anyone who needs help. When there is one, the person prepares ahead of time how the team can find them and approach them, without taking out their phone.</p>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="flowno">Flow 5 · Safe space at an event</p><p class="stepnum">"How will they find me?"</p><h3>An anonymous ID card, filled in ahead of time</h3></div>
+        <p>The event is chosen in the plan, so this flow starts after it, with the profile that safe-space staff will see. It works as a temporary ID card with one purpose: helping staff find the person and approach them the way they asked. The person fills in details that help staff recognize them, such as what to call them and what they are wearing, and says how they would like to be approached. Once saved, the person appears on the event's map.</p>
+      </div>
+      <div class="flow" data-flow="f5"></div>
+      <div class="ann-pair">
+        <div class="ann ann--L ann--noR" data-screen="s5"></div>
+        <div class="ann" data-screen="s6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The interface -->
+  <hr class="ui-divider" aria-hidden="true">
+  <section class="ui" aria-labelledby="ui">
+    <div class="ui__head">
+      <p class="eyebrow">The interface</p>
+      <h2 id="ui">Design for Sensitive Moments</h2>
+      <p class="ui__lead">The calm vibe of the app is built from design choices as much as from flows. These are the ones that carry the decisions above.</p>
+    </div>
+    <div class="ui__grid">
+      <div class="ui__row ui__row--3">
+        <article class="uicard">
+          <div class="uicard__shot" style="aspect-ratio:313 / 364"><img src="images/ui-1.webp" alt="The lower part of the mood screen: the writing field over a night sky with glowing hills." width="626" height="728" loading="lazy"></div>
+          <div class="uicard__txt">
+            <h3>A night world, not a clinic</h3>
+            <p>The app opens into a night sky, with a glow rising behind the hills. The first thing a person meets is calm, not a form, so the question about how they feel can be answered at their own pace.</p>
+          </div>
+        </article>
+        <article class="uicard">
+          <div class="uicard__shot" style="aspect-ratio:353 / 364"><img src="images/ui-2.webp" alt="The plan screen: the substances field, with the offer to check a combination right beneath it, in the same colors as the fields." width="706" height="728" loading="lazy"></div>
+          <div class="uicard__txt">
+            <h3>A palette that lowers the volume</h3>
+            <p>A deep teal night, soft plum fields, and mint for what is chosen. Even the offer to check a combination wears the same colors as the list around it, so it reads as part of the screen and not as an alarm.</p>
+          </div>
+        </article>
+        <article class="uicard">
+          <div class="uicard__shot" style="aspect-ratio:353 / 364"><img src="images/ui-3.webp" alt="The substances screen: the molecule icon highlighted in the tab bar, and the substances as soft hexagons." width="706" height="728" loading="lazy"></div>
+          <div class="uicard__txt">
+            <h3>Soft shapes, nothing sharp</h3>
+            <p>The molecule icon in the tab bar turns into the screen itself: every substance is a soft hexagon, a molecule translated into something rounded that you can tap. The science stays, without a single hard edge.</p>
+          </div>
+        </article>
+      </div>
+      <div class="ui__row ui__row--2">
+        <article class="uicard">
+          <div class="uicard__pair"><div class="uicard__shot" style="aspect-ratio:272 / 364"><img src="images/ui-4a.webp" alt="The jar of stars in its empty state, on an open rule card." width="544" height="728" loading="lazy"></div><div class="uicard__shot" style="aspect-ratio:272 / 364"><img src="images/ui-4b.webp" alt="The jar of stars in its filled state, once the rule is saved." width="544" height="728" loading="lazy"></div></div>
+          <div class="uicard__txt">
+            <h3>A little magic, not an office icon</h3>
+            <p>Saving is a jar of stars, an object from the same night-sky, fairy-tale world as the rest of the app. A plain office-style save icon would break that world and could feel stressful, while a jar that holds stars makes keeping something feel gentle.</p>
+          </div>
+        </article>
+        <article class="uicard">
+          <div class="uicard__shot" style="aspect-ratio:544 / 364"><img src="images/ui-5.webp" alt="The combination card: the doctors’ text on a quiet panel, below the two chosen hexagons." width="1088" height="728" loading="lazy"></div>
+          <div class="uicard__txt">
+            <h3>Serious inside a soft world</h3>
+            <p>The doctors’ text stays exactly as written, on a light, quiet panel that is easy to read, inside the soft frame of the app. It feels like information to rely on, without feeling like an alarm.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- More work -->
+  <section class="more" aria-label="More work">
+    <p class="lbl">More work</p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="sw-shield" viewBox="0 0 37 37"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.8814 36.819C18.2572 37.0601 18.7428 37.0601 19.1186 36.819C19.1186 36.819 23.0094 34.3452 26.4839 32.1333C30.155 29.7983 32.375 25.7514 32.375 21.4027V5.78123C32.375 5.19501 31.9356 4.70129 31.3517 4.63307C26.5359 4.06767 22.3272 2.82354 19.24 0.265915C18.8122 -0.0884756 18.1878 -0.0884756 17.76 0.265915C14.6728 2.82354 10.4641 4.06767 5.64829 4.63307C5.06439 4.70129 4.625 5.19501 4.625 5.78123V21.4027C4.625 25.7514 6.84497 29.7983 10.5161 32.1333C13.9906 34.3452 17.8814 36.819 17.8814 36.819ZM17.8294 32.7369L11.6029 28.4576C9.40606 26.9475 8.09375 24.4535 8.09375 21.7884V8.67185C8.09375 8.08795 8.52735 7.59596 9.11126 7.52427C12.5395 7.10051 15.54 6.25182 17.7369 4.33187C18.1763 3.95204 18.8237 3.95204 19.2631 4.33187C21.46 6.25182 24.4605 7.10051 27.8945 7.52427C28.4727 7.59596 28.9062 8.08795 28.9062 8.67185V21.7884C28.9062 24.4535 27.5939 26.9475 25.3971 28.4576L19.1706 32.7369L19.003 32.8386L18.7891 32.9173L18.5983 32.9485H18.4017L18.2109 32.9173L18.026 32.8514L17.8929 32.7814C17.8698 32.7675 17.8467 32.7525 17.8294 32.7369ZM18.5 30.3937L12.9153 26.5521C11.3428 25.4733 10.4062 23.6921 10.4062 21.7884V9.67894C13.5397 9.19794 16.3031 8.30359 18.5 6.68426C20.6969 8.30359 23.4603 9.19794 26.5938 9.67894V21.7884C26.5938 23.6921 25.6572 25.4733 24.0847 26.5521L18.5 30.3937Z" fill="currentColor"/></symbol><symbol id="sw-tools" viewBox="0 0 36 36"><path d="M12.0585 7.83246C12.2837 7.03849 12.3488 6.19566 12.2467 5.37511C12.0769 4.00859 11.472 2.7713 10.4977 1.79698C10.2432 1.54245 9.96356 1.30816 9.66663 1.10088C8.6355 0.380953 7.42198 0.000211053 6.15748 1.15901e-07C5.79572 -7.01966e-05 5.43164 0.0318517 5.07495 0.0949923C4.69948 0.161508 4.39812 0.415828 4.26902 0.775125C4.13937 1.13576 4.21003 1.52515 4.45802 1.81673L6.42495 4.12966L4.12973 6.42487L1.81688 4.45795C1.52515 4.20989 1.13569 4.1393 0.775055 4.26902C0.415688 4.39833 0.161438 4.69969 0.0949923 5.07495C0.0318517 5.43129 -7.01966e-05 5.79551 1.15901e-07 6.15741C0.000281366 7.42198 0.380953 8.6355 1.10088 9.66663C1.30795 9.96328 1.54216 10.2428 1.79698 10.4977C2.7713 11.472 4.00859 12.0769 5.37511 12.2467C6.19566 12.3488 7.03842 12.2837 7.83246 12.0585L12.531 16.757L16.757 12.531L12.0585 7.83246Z" fill="currentColor"/><path d="M23.9415 28.1676C23.7163 28.9616 23.6512 29.8044 23.7532 30.6249C23.9231 31.9915 24.5279 33.2288 25.5023 34.2031C25.7572 34.458 26.0367 34.6921 26.3334 34.8992C27.3646 35.6191 28.578 35.9998 29.8426 36.0001C30.2045 36.0001 30.5687 35.9682 30.9251 35.9051C31.3003 35.8385 31.6017 35.5844 31.731 35.225C31.8608 34.8644 31.7901 34.475 31.542 34.1833L29.5751 31.8704L31.8703 29.5752L34.1833 31.5421C34.4748 31.7901 34.8643 31.8608 35.2249 31.7311C35.5842 31.6019 35.8386 31.3006 35.905 30.9251C35.9681 30.5685 36.0001 30.2043 36 29.8427C35.9998 28.5781 35.619 27.3646 34.8991 26.3334C34.6918 26.0365 34.4576 25.7569 34.203 25.5023C33.2287 24.528 31.9914 23.9232 30.6249 23.7533C29.8043 23.6513 28.9616 23.7164 28.1675 23.9415L23.469 19.243L19.243 23.4691L23.9415 28.1676Z" fill="currentColor"/><path d="M35.6894 2.69549L33.3045 0.310628C32.9523 -0.0416373 32.4127 -0.10084 31.9925 0.166628L27.0701 3.29898C26.8289 3.45254 26.6583 3.70138 26.6022 3.98193L26.1805 6.0906L13.2908 18.9803L17.0197 22.7092L29.9093 9.81948L32.0181 9.39775C32.2986 9.34164 32.5474 9.17106 32.701 8.92975L35.8332 4.00759C36.1008 3.58733 36.0417 3.04775 35.6894 2.69549Z" fill="currentColor"/><path d="M17.6412 26.3138L9.68626 18.3588C9.27437 17.947 8.60661 17.947 8.19472 18.3588C7.78283 18.7707 7.78283 19.4385 8.19472 19.8504L8.44334 20.099L1.54217 27.0002C-0.513976 29.0563 -0.513976 32.4018 1.54217 34.4579C3.59832 36.5141 6.94379 36.5141 8.99994 34.4579L15.9011 27.5568L16.1497 27.8054C16.5616 28.2173 17.2294 28.2173 17.6413 27.8054C18.053 27.3935 18.053 26.7257 17.6412 26.3138ZM10.6104 26.8813L5.24335 32.2483C4.83146 32.6602 4.1637 32.6602 3.75181 32.2483C3.33992 31.8364 3.33992 31.1687 3.75181 30.7568L9.11884 25.3897C9.53073 24.9779 10.1985 24.9779 10.6104 25.3897C11.0222 25.8016 11.0222 26.4694 10.6104 26.8813Z" fill="currentColor"/></symbol><symbol id="sw-health" viewBox="0 0 36 36"><path d="M17.9898 4.74549C10.1429 -2.11775 0.165634 3.91249 0.00202879 12.0875C-0.0396633 14.1709 0.561744 16.2003 1.75886 18.0712H9.51824L10.8984 15.7709C11.2991 15.1031 12.2689 15.0816 12.6924 15.7474L15.6043 20.3232L19.849 11.3624C20.2191 10.5806 21.3223 10.5557 21.7306 11.3139L25.3691 18.0712H34.2207C40.7776 7.82326 27.8188 -3.85132 17.9898 4.74549Z" fill="currentColor"/><path d="M23.8107 19.6257L20.8623 14.1501L16.693 22.9519C16.3383 23.7007 15.295 23.7658 14.8502 23.0666L11.8291 18.3193L11.0197 19.6683C10.8291 19.986 10.4858 20.1803 10.1154 20.1803H3.42719C3.63684 20.3997 2.51945 19.2846 17.2459 33.9348C17.6572 34.344 18.3221 34.3441 18.7335 33.9348C33.2333 19.51 32.343 20.3993 32.5522 20.1803H24.7392C24.3512 20.1804 23.9946 19.9674 23.8107 19.6257Z" fill="currentColor"/></symbol><symbol id="sw-gov" viewBox="0 0 36 36"><path d="M33.165 10.1081L19.0688 2.52C18.405 2.16 17.6006 2.16 16.9369 2.52L2.83502 10.1081C2.46939 10.305 2.23877 10.6875 2.23877 11.1037V13.1681C2.23877 13.7925 2.74502 14.2987 3.36939 14.2987H32.6194C33.2438 14.2987 33.75 13.7925 33.75 13.1681V11.1037C33.75 10.6875 33.5194 10.305 33.1538 10.1081H33.165ZM18 11.3681C16.7456 11.3681 15.7275 10.35 15.7275 9.09562C15.7275 7.84125 16.7456 6.82312 18 6.82312C19.2544 6.82312 20.2725 7.84125 20.2725 9.09562C20.2725 10.35 19.2544 11.3681 18 11.3681Z" fill="currentColor"/><path d="M31.9781 30.0262H4.02188C3.04313 30.0262 2.25 30.8194 2.25 31.7981V33.1256C2.25 33.4687 2.52562 33.7444 2.86875 33.7444H33.1313C33.4744 33.7444 33.75 33.4687 33.75 33.1256V31.7981C33.75 30.8194 32.9569 30.0262 31.9781 30.0262Z" fill="currentColor"/><path d="M4.56189 15.4293V28.9012H7.97064V19.7718C7.97064 18.6074 8.91564 17.6624 10.08 17.6624C11.2444 17.6624 12.1894 18.6074 12.1894 19.7718V28.9012H15.8906V19.7718C15.8906 18.6074 16.8356 17.6624 18 17.6624C19.1644 17.6624 20.1094 18.6074 20.1094 19.7718V28.9012H23.8106V19.7718C23.8106 18.6074 24.7556 17.6624 25.92 17.6624C27.0844 17.6624 28.0294 18.6074 28.0294 19.7718V28.9012H31.4381V15.4293H4.56189Z" fill="currentColor"/></symbol><symbol id="sw-fin" viewBox="0 0 38 38"><path d="M35.2113 6.14685H2.78878C1.25103 6.14685 0 7.39788 0 8.93563V29.0645C0 30.6022 1.25103 31.8532 2.78878 31.8532H35.2112C36.749 31.8532 38 30.6022 38 29.0645V8.93563C38.0001 7.39788 36.749 6.14685 35.2113 6.14685ZM11.6892 22.8846H15.4562C15.9082 22.8846 16.2744 23.251 16.2744 23.7029C16.2744 24.1548 15.9081 24.5211 15.4562 24.5211H11.6892C11.2372 24.5211 10.8709 24.1548 10.8709 23.7029C10.8709 23.251 11.2373 22.8846 11.6892 22.8846ZM3.53876 14.677C3.53876 14.225 3.9051 13.8587 4.35702 13.8587H9.25903C9.71102 13.8587 10.0773 14.2251 10.0773 14.677V18.2212C10.0773 18.6731 9.71095 19.0394 9.25903 19.0394H4.35702C3.90503 19.0394 3.53876 18.6731 3.53876 18.2212V14.677ZM4.35702 22.8846H8.124C8.57599 22.8846 8.94226 23.251 8.94226 23.7029C8.94226 24.1548 8.57592 24.5211 8.124 24.5211H4.35702C3.90503 24.5211 3.53876 24.1548 3.53876 23.7029C3.53876 23.251 3.90518 22.8846 4.35702 22.8846ZM17.8051 28.1599H4.35702C3.90503 28.1599 3.53876 27.7935 3.53876 27.3416C3.53876 26.8897 3.9051 26.5233 4.35702 26.5233H17.8051C18.2571 26.5233 18.6234 26.8897 18.6234 27.3416C18.6234 27.7935 18.2571 28.1599 17.8051 28.1599ZM22.7883 24.5211H19.0213C18.5693 24.5211 18.2031 24.1548 18.2031 23.7029C18.2031 23.251 18.5694 22.8846 19.0213 22.8846H22.7883C23.2403 22.8846 23.6066 23.251 23.6066 23.7029C23.6066 24.1548 23.2403 24.5211 22.7883 24.5211ZM30.1205 24.5211H26.3535C25.9015 24.5211 25.5352 24.1548 25.5352 23.7029C25.5352 23.251 25.9016 22.8846 26.3535 22.8846H30.1205C30.5725 22.8846 30.9387 23.251 30.9387 23.7029C30.9387 24.1548 30.5723 24.5211 30.1205 24.5211ZM33.6431 12.5677H24.7584C24.3064 12.5677 23.9401 12.2014 23.9401 11.7495C23.9401 11.2976 24.3065 10.9312 24.7584 10.9312H33.6431C34.0951 10.9312 34.4613 11.2976 34.4613 11.7495C34.4613 12.2014 34.0949 12.5677 33.6431 12.5677Z" fill="currentColor"/></symbol></defs></svg>
+    <div class="switch">
+      <a class="sw sw--cyber" href="../coro/"><span class="chip"><svg aria-hidden="true"><use href="#sw-shield"/></svg></span>Cybersecurity</a>
+      <a class="sw sw--field" href="../wellcheck/"><span class="chip"><svg aria-hidden="true"><use href="#sw-tools"/></svg></span>Field operations</a>
+      <a class="sw sw--health on" aria-current="page" href="#top"><span class="chip"><svg aria-hidden="true"><use href="#sw-health"/></svg></span>Public health</a>
+      <a class="sw sw--fin" href="https://claude.ai/artifact/Xs72j4zhKjkY12fYZUa3dE"><span class="chip"><svg aria-hidden="true"><use href="#sw-fin"/></svg></span>Fintech</a>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------- Content ----------
+   To change a screen: edit its entry. src/w/h/alt point at the exported image. Dots are x,y in % of the image (for the scrolling
+   screen, of the whole long image). Bubble "by" is the bubble's centre in % of the visible screen height. Notes are numbered top to bottom. */
+const PH = { w:390, h:844 };           /* phone screen ratio, used by the placeholders */
+const SCREENS = {
+  s1: { name:'Mood check-in', src:'images/mood.webp', w:780, h:1682, alt:'The check-in screen: a greeting by name, a list of moods to pick from, and a place to write in your own words.', notes:[
+    { x:10, y:33.3, side:'left',  by:33, i:"A few taps are enough.", t:'Check in with yourself', d:'Before anything that can affect the mind, it helps to stop and ask yourself how you feel. Pick one mood or several.' },
+    { x:90, y:60.5, side:'right', by:60, i:"Optional, you control your narrative.", t:'Feel free to spill', d:'Choosing from a list is not the only way. It also invites them to say it in their own words, for whatever a ready-made mood does not hold.' } ]},
+  s2: { name:'Plan a journey', src:'images/plan-fields.webp', w:780, h:1682, alt:'The plan screen: four optional fields for what, when, where and with whom.', notes:[
+    { x:6.5, y:24.5, side:'left', by:30, i:"Nothing here is required.", t:'Plan your journey', d:'What, when, where and with whom. This is where the rest of the help starts: the substances lead to the combination check, and the event leads to the safe-space profile.' } ]},
+  s2b: { name:'Choosing substances', src:'images/plan-field-open.webp', w:780, h:1682, alt:'The plan screen with the substances open: several chosen, and a line offering to check the combination.', notes:[
+    { x:91.5, y:29, side:'right', by:29, i:"A hint, never a block.", t:"Know what you're taking", d:'Whether it is one substance or more, it helps to know exactly what you are taking. Pick it from the list by name, and once two are chosen, a line offers to check how they mix.' } ]},
+  s4: { name:'Ten rules of thumb', src:'images/rules-list.webp', w:780, h:1682, alt:'The list of ten rules of thumb, each with its own icon, and the jar in the top corner.', notes:[
+    { x:9.2, y:7.8, side:'left', by:7,  i:"Everything saved, in one place.", t:'Find it again later', d:'Saved rules, the ID card and the plans are kept here, and the jar can be opened from several places in the app.' },
+    { x:10.5, y:20.8, side:'left', by:33, i:"Tap one to read it.", t:'Important tips', d:'Preparing the mind and body, what and how much to take, mixing, taking a break, drinking, and staying with friends.' } ]},
+  s4b: { name:'A rule, opened', src:'images/rules-card.webp', w:780, h:1682, alt:'A rule opened in the list, with its short text from the doctors.', notes:[
+    { x:11.5, y:26.6, side:'right', by:24, i:"One tap keeps it.", t:'Save it to the jar', d:'The rule is kept for later, next to the ID card and the plans.' },
+    { x:90, y:46,   side:'right', by:54, i:"Read it now, keep it for later.", t:'Short, in the doctors\' words', d:'A few lines, written by doctors, on what to watch for and why.' } ]},
+  s5: { name:'Safe-space profile', src:'images/profile.webp', w:780, h:2720, scroll:true, status:'images/profile-status.webp', nav:'images/profile-nav.webp',
+    alt:'The temporary ID card form: the event, an optional photo, a name, what the person wears and its colors, extra marks, how to approach them and whether to touch.', notes:[
+    { x:11.8, y:39.6, side:'left', by:36, i:"What staff can spot from a distance.", t:'How to recognize you', d:'Pick the garments and their colors, then add what stands out, like hair color or a tattoo.' },
+    { x:10.5, y:69,   side:'left', by:68, i:"The person decides how they are met.", t:'How to approach you', d:'Choose how staff should come to you: talk quietly, sit beside you without talking, or ask what you need. Then say whether touching is okay.' } ]},
+  s6: { name:'What staff see on the map', src:'images/staff-view.webp', w:780, h:1682, anim:{ map:'images/staff-view-map.webp', small:'images/staff-view-small.webp', photo:'images/staff-photo.webp' }, alt:'The staff view: the person appears by name on the event map, and the profile opens with an enlarged photo, the marks to look for, how to approach and whether to touch.', notes:[
+    { x:85.3, y:31.5, side:'right', by:30, i:"The profile exists to be found.", t:'Found on the map', d:'The person appears by name on the event map, so staff know where to go. If they added a photo, staff can use it too, to recognize them when they get there.' } ]}
+};
+const CALC = [
+  { name:'All the substances', src:'images/calc-01-all.webp', alt:'The calculator: every substance as a hexagon, by name.', t:'Start with any substance', d:'Tap one to select it, or press and hold to open its own card.' },
+  { name:'Choose a second one', src:'images/calc-03-two-selected.webp', alt:'Two substances selected, with a Calculate combination button.', t:'Add a second', d:'The Calculate combination button appears as soon as two are chosen.' },
+  { name:'Hexagons meet', src:'images/calc-06-pair.webp', alt:'The two chosen substances side by side with a plus between them.', t:'Tap to calculate', d:'The two substances come together at the top of the screen.' },
+  { name:'Combination card', src:'images/calc-07-card.webp', alt:'The combination card: guidance for before and after use, for this pair.', t:'What to consider', d:'Guidance for before and after use, for this exact combination.' } ];
+/* frames of the looping prototype; step = which numbered step is on, hold = ms on screen, fade = ms to fade in.
+   Between "pressed" and the card, the two chosen hexagons are cut out of the frames and glide up on their own (scene). */
+const LOOP_FRAMES = [
+  { src:'images/calc-01-all.webp',          step:0, hold:700,  fade:450 },
+  { scene:'scroll', under:0,                  step:0, hold:3100, fade:0 },
+  { src:'images/calc-02-one-selected.webp', step:0, hold:1500, fade:350 },
+  { src:'images/calc-03-two-selected.webp', step:1, hold:1900, fade:350 },
+  { src:'images/calc-04-pressed.webp',      step:2, hold:400,  fade:150 },
+  { scene:'pair',                            step:2, hold:3100, fade:0 },
+  { src:'images/calc-07-card.webp',         step:3, hold:4200, fade:0 } ];
+const LOOP_EXTRA = { bg:'images/calc-bg.webp', pair:'images/calc-06-pair.webp', plate:'images/calc-bg-list.webp', list:'images/calc-list.webp' };
+/* the scroll: the list is one tall cut-out (780x1830) that slides over the fixed background; it is cut off under the header and along the wavy edge of the bottom bar */
+const LOOP_SCROLL = { by:320, down:1050, rest:450, up:950, delay:200, track:[4.103,11.415,1.026,76.040], thumb:51.19, travel:.649,
+  clip:'polygon(0% 10.226%, 100% 10.226%, 99.936% 88.347%, 99.423% 88.347%, 98.910% 88.347%, 98.397% 88.347%, 97.885% 88.347%, 97.372% 88.347%, 96.859% 88.347%, 96.346% 88.347%, 95.833% 88.347%, 95.321% 88.347%, 94.808% 88.347%, 94.295% 88.347%, 93.782% 88.347%, 93.269% 88.347%, 92.756% 88.347%, 92.244% 88.347%, 91.731% 88.347%, 91.218% 88.347%, 90.705% 88.347%, 90.192% 88.347%, 89.679% 88.347%, 89.167% 88.347%, 88.654% 88.347%, 88.141% 88.347%, 87.628% 88.347%, 87.115% 88.347%, 86.603% 88.347%, 86.090% 88.347%, 85.577% 88.347%, 85.064% 88.347%, 84.551% 88.347%, 84.038% 88.347%, 83.526% 88.347%, 83.013% 88.347%, 82.500% 88.347%, 81.987% 88.347%, 81.474% 88.347%, 80.962% 88.347%, 80.449% 88.347%, 79.936% 88.347%, 79.423% 88.347%, 78.910% 88.347%, 78.397% 88.347%, 77.885% 88.347%, 77.372% 88.347%, 76.859% 88.347%, 76.346% 88.347%, 75.833% 88.347%, 75.321% 88.347%, 74.808% 88.347%, 74.295% 88.347%, 73.782% 88.347%, 73.269% 88.347%, 72.756% 88.347%, 72.244% 88.347%, 71.731% 88.347%, 71.218% 88.347%, 70.705% 88.347%, 70.192% 88.347%, 69.679% 88.347%, 69.167% 88.347%, 68.654% 88.347%, 68.141% 88.347%, 67.628% 88.347%, 67.115% 88.347%, 66.603% 88.347%, 66.090% 88.347%, 65.577% 88.347%, 65.064% 88.347%, 64.551% 88.347%, 64.038% 88.407%, 63.526% 88.347%, 63.013% 88.347%, 62.500% 88.347%, 61.987% 88.347%, 61.474% 88.288%, 60.962% 88.228%, 60.449% 88.228%, 59.936% 88.109%, 59.423% 87.990%, 58.910% 87.872%, 58.397% 87.753%, 57.885% 87.574%, 57.372% 87.515%, 56.859% 87.277%, 56.346% 87.158%, 55.833% 87.039%, 55.321% 86.861%, 54.808% 86.742%, 54.295% 86.623%, 53.782% 86.504%, 53.269% 86.326%, 52.756% 86.207%, 52.244% 86.088%, 51.731% 86.029%, 51.218% 85.969%, 50.705% 85.969%, 50.192% 85.910%, 49.679% 85.969%, 49.167% 85.969%, 48.654% 85.969%, 48.141% 85.969%, 47.628% 85.969%, 47.115% 86.088%, 46.603% 86.147%, 46.090% 86.266%, 45.577% 86.385%, 45.064% 86.564%, 44.551% 86.623%, 44.038% 86.801%, 43.526% 86.920%, 43.013% 87.039%, 42.500% 87.277%, 41.987% 87.337%, 41.474% 87.693%, 40.962% 87.634%, 40.449% 87.753%, 39.936% 87.931%, 39.423% 87.990%, 38.910% 88.228%, 38.397% 88.288%, 37.885% 88.288%, 37.372% 88.407%, 36.859% 88.347%, 36.346% 88.347%, 35.833% 88.347%, 35.321% 88.347%, 34.808% 88.347%, 34.295% 88.347%, 33.782% 88.347%, 33.269% 88.347%, 32.756% 88.347%, 32.244% 88.347%, 31.731% 88.347%, 31.218% 88.347%, 30.705% 88.347%, 30.192% 88.347%, 29.679% 88.347%, 29.167% 88.347%, 28.654% 88.347%, 28.141% 88.347%, 27.628% 88.347%, 27.115% 88.347%, 26.603% 88.347%, 26.090% 88.347%, 25.577% 88.347%, 25.064% 88.347%, 24.551% 88.347%, 24.038% 88.347%, 23.526% 88.347%, 23.013% 88.347%, 22.500% 88.347%, 21.987% 88.347%, 21.474% 88.347%, 20.962% 88.347%, 20.449% 88.347%, 19.936% 88.347%, 19.423% 88.347%, 18.910% 88.347%, 18.397% 88.347%, 17.885% 88.347%, 17.372% 88.347%, 16.859% 88.347%, 16.346% 88.347%, 15.833% 88.347%, 15.321% 88.347%, 14.808% 88.347%, 14.295% 88.347%, 13.782% 88.347%, 13.269% 88.347%, 12.756% 88.347%, 12.244% 88.347%, 11.731% 88.347%, 11.218% 88.347%, 10.705% 88.347%, 10.192% 88.347%, 9.679% 88.347%, 9.167% 88.347%, 8.654% 88.347%, 8.141% 88.347%, 7.628% 88.347%, 7.115% 88.347%, 6.603% 88.347%, 6.090% 88.347%, 5.577% 88.347%, 5.064% 88.347%, 4.551% 88.347%, 4.038% 88.347%, 3.526% 88.347%, 3.013% 88.347%, 2.500% 88.347%, 1.987% 88.347%, 1.474% 88.347%, 0.962% 88.347%, 0.449% 88.347%, 0.064% 88.347%)' };
+/* the two hexagon cut-outs: box on the 780x1682 frame (%), and the glide in % of the cut-out's own size */
+const LOOP_HEX = [
+  { src:'images/calc-hex-r.webp', l:53.077, t:26.159, w:38.462, h:18.430, up:3.226, to:[0.917,-72.903], dur:1450,
+    txt:{ src:'images/calc-txt-r.webp', l:64.231, t:33.948, w:16.282, h:2.259, up:26.316, to:[2.362,-581.579] } },
+  { src:'images/calc-hex-l.webp', l:9.103,  t:42.985, w:35.256, h:17.955, up:3.311, to:[0.909,-169.04], dur:1550,
+    txt:{ src:'images/calc-txt-l.webp', l:18.846, t:50.951, w:15.897, h:2.497, up:23.81, to:[4.839,-1221.429] } } ];
+const HERO = [
+  { src:'images/mood.webp', alt:'The mood check-in screen', h:1682 },
+  { src:'images/calc-01-all.webp', alt:'The calculator, with every substance', h:1682 },
+  { src:'images/hero-what-open.webp', alt:'The plan screen, with the list of substances open', h:1682 } ];
+/* Each shape = one action. kind: user (default) | choice (the user's decision) | app (the app responds) | link (continues in another flow). */
+const FLOWS = {
+  f1: [ { t:'Picks how they feel', s:'One mood or several' },
+        { t:'Adds a few words', s:'Optional, own words' },
+        { kind:'link', k:'Flow 2', t:'Taps Next', s:'Moves on to the plan' } ],
+  f2: [ { t:'Fills in the plan', s:'When, where, with whom' },
+        { kind:'choice', t:'Picks substances', s:'One or several' },
+        { kind:'app', t:'Suggests a check', s:'A soft hint appears' },
+        { kind:'link', k:'Flow 3', t:'Opens the calculator', s:'From the hint' } ],
+  f3: [ { kind:'app', t:'Shows all substances', s:'To choose from' },
+        { kind:'choice', t:'Picks a substance', s:'Or holds for its card' },
+        { kind:'choice', t:'Picks a second', s:'Button appears' },
+        { kind:'app', t:'Shows the pair', s:'Together, with a plus' },
+        { kind:'app', t:'Opens the card', s:'Before and after use' } ],
+  f4: [ { t:'Picks a subject', s:'Each has its own icon' },
+        { kind:'app', t:'Opens a short card', s:'Short, by the doctors' },
+        { kind:'choice', t:'Saves it', s:'Into the jar' } ],
+  f5: [ { kind:'choice', t:'Picks the event', s:'Done in the plan', w:160 },
+        { t:'Writes what to call them', s:'Any name or nickname', w:208 },
+        { t:'Describes what they wear', s:'Garments, in their colors', w:212 },
+        { t:'Sets how to approach', s:'And whether to touch' },
+        { kind:'app', t:'Staff can find them', s:'On the event map' } ]
+};
+
+/* A note under a diagram that is not a step: something reachable from anywhere in the flow. */
+const ASIDES = {
+  f4: { k:'Not a step', t:'The jar, from anywhere', s:'Saved rules, ID card and plans' }
+};
+
+/* ---------- Builders ---------- */
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const slotHTML = (name, extra='') => `<div class="slot" role="img" aria-label="${esc(name)}, screen to come" style="aspect-ratio:${PH.w}/${PH.h};${extra}"><span class="slot__eyebrow">Screen to come</span><span class="slot__name">${esc(name)}</span></div>`;
+
+/* hero */
+document.querySelector('[data-hero]').innerHTML =
+  HERO.map(h=>`<img class="hero__shot" src="${h.src}" width="780" height="${h.h}" alt="${esc(h.alt)}">`).join('');
+
+/* mini flow diagram: nodes 176x72, wires with arrowheads. The legend lists only the shape types a diagram really uses. */
+function buildFlow(el){
+  const nodes = FLOWS[el.dataset.flow]; if(!nodes) return;
+  const W=184,H=72,G=28,top=6, n=nodes.length, ad=ASIDES[el.dataset.flow], AW=232;
+  /* a node may carry its own width (w), so a long line gets room and a short one gives some back */
+  const ws = nodes.map(nd=>nd.w||W), xs = ws.map((_,i)=>ws.slice(0,i).reduce((a,b)=>a+b,0)+i*G), endX = xs[n-1]+ws[n-1];
+  const vw = endX+(ad?G+AW:0), vh=top+H+6;
+  const kindOf = nd => nd.kind || 'user';
+  const LEG = { user:'User', choice:"User's decision", app:'App', link:'Continues in another flow' };
+  const used = new Set(nodes.map(kindOf));
+  let svg='', list='';
+  nodes.forEach((nd,i)=>{
+    const x=xs[i], W=ws[i], k=kindOf(nd), cls = k==='user' ? 'node' : 'node node--'+k, eyebrow = (nd.k || 'Step '+(i+1));
+    const txt = `<text class="n-step" x="${x+14}" y="${top+22}">${esc(eyebrow.toUpperCase())}</text><text class="n-title" x="${x+14}" y="${top+43}">${esc(nd.t)}</text><text class="n-sub" x="${x+14}" y="${top+61}">${esc(nd.s)}</text>`;
+    svg += `<rect class="${cls}" x="${x}" y="${top}" width="${W}" height="${H}" rx="12"/>` + (k==='choice' ? `<g class="on-accent">${txt}</g>` : txt);
+    if (i<n-1){ const x1=x+W, x2=x+W+G, y=top+H/2;
+      svg += `<path class="wire" d="M${x1} ${y} H${x2-8}"/><path class="head" d="M${x2-8} ${y-5} L${x2} ${y} L${x2-8} ${y+5} Z"/>`; }
+    list += `<li><div class="fstep${k==='user'?'':' fstep--'+k}"><div class="fstep__meta"><span>${esc(eyebrow)}</span><span>${k==='user'?'':LEG[k]}</span></div><p class="fstep__title">${esc(nd.t)}</p><p class="fstep__sub">${esc(nd.s)}</p></div></li>`;
+  });
+  if (ad){ const ax=endX+G, y=top+H/2;
+    svg += `<path class="wire wire--aside" d="M${endX} ${y} H${ax}"/>`
+      + `<rect class="node node--aside" x="${ax}" y="${top}" width="${AW}" height="${H}" rx="12"/>`
+      + `<text class="n-step" x="${ax+14}" y="${top+22}">${esc(ad.k.toUpperCase())}</text><text class="n-title" x="${ax+14}" y="${top+43}">${esc(ad.t)}</text><text class="n-sub" x="${ax+14}" y="${top+61}">${esc(ad.s)}</text>`;
+    list += `<li><div class="fstep fstep--link"><div class="fstep__meta"><span>${esc(ad.k)}</span><span></span></div><p class="fstep__title">${esc(ad.t)}</p><p class="fstep__sub">${esc(ad.s)}</p></div></li>`; }
+  const legend = ['user','choice','app','link'].filter(k=>used.has(k)).map(k=>`<li><span class="swatch swatch--${k}"></span>${LEG[k]}</li>`).join('');
+  el.innerHTML = `<div class="flow__card"><ul class="flow__legend" aria-label="Legend">${legend}</ul>`
+    + `<svg class="flow__svg" viewBox="0 0 ${vw} ${vh}" style="width:${vw}px;max-width:100%" role="img" aria-label="Flow: ${nodes.map(x=>esc(x.t)).join(', ')}">${svg}</svg><ol class="flow__list">${list}</ol></div>`;
+}
+
+/* annotated phone screen: dots on the screen, bubbles in the side columns, a dashed line between; legend on phones */
+function buildScreen(el){
+  const s = SCREENS[el.dataset.screen]; if(!s) return;
+  const dots = s.notes.map((n,i)=>`<span class="ann__dot" style="left:${n.x}%;top:${n.y}%" aria-hidden="true">${i+1}</span>`).join('');
+  const bub = (n,i)=>`<div class="bubble" data-i="${i}" style="top:${n.by ?? n.y}%"><div class="bubble__t"><span class="bubble__n">${i+1}</span>${n.t}</div><p class="bubble__d">${n.d}</p>${n.i?`<p class="bubble__i">${n.i}</p>`:''}</div>`;
+  const left = s.notes.map((n,i)=>n.side==='left'?bub(n,i):'').join(''), right = s.notes.map((n,i)=>n.side!=='left'?bub(n,i):'').join('');
+  const legend = s.notes.map((n,i)=>`<li><span class="bubble__n">${i+1}</span><div><b>${n.t}</b><span class="d">${n.d}</span>${n.i?`<span class="i">${n.i}</span>`:''}</div></li>`).join('');
+  const scroll = s.scroll && s.src;
+  /* a scrolling screen carries its dots inside the scrolling content, so they travel with it */
+  const media = scroll
+    ? `<div class="pscreen"><div class="pscroll" tabindex="0" role="region" aria-label="${esc(s.name)}, scrollable"><div class="pcontent" style="aspect-ratio:${s.w}/${s.h}"><img src="${s.src}" width="${s.w}" height="${s.h}" alt="${esc(s.alt||s.name)}">${dots}</div></div><img class="pstatus" src="${s.status}" alt="" aria-hidden="true"><img class="pnav" src="${s.nav}" alt="" aria-hidden="true"><div class="pbar" aria-hidden="true"><i></i></div></div><p class="pscroll__hint">This screen scrolls</p>`
+    : s.anim
+      ? `<img src="${s.anim.map}" width="${s.w}" height="${s.h}" alt="${esc(s.alt||s.name)}"><div class="ann__stage"><img class="ann__sprite" src="${s.anim.photo}" width="464" height="464" alt="" aria-hidden="true"></div><img class="ann__frame ann__frame--small" src="${s.anim.small}" width="${s.w}" height="${s.h}" alt="" aria-hidden="true"><img class="ann__frame ann__frame--big" src="${s.src}" width="${s.w}" height="${s.h}" alt="" aria-hidden="true"><div class="ann__tapbox"><span class="ann__tap" style="left:50%;top:55.3%"></span><span class="ann__tap" style="left:49.9%;top:58.9%"></span></div>` + dots
+      : (s.src ? `<img src="${s.src}" width="${s.w}" height="${s.h}" alt="${esc(s.alt||s.name)}">` : slotHTML(s.name)) + dots;
+  el.innerHTML = `<div class="ann__img${scroll?' ann__img--scroll':''}">${media}</div>${left?`<div class="ann__col ann__col--left">${left}</div>`:''}${right?`<div class="ann__col ann__col--right">${right}</div>`:''}<ol class="legend">${legend}</ol><svg class="ann__lines" aria-hidden="true"></svg>`;
+}
+
+/* the photo on the staff view: one tap shrinks it so more of the map shows, a second tap enlarges it again. Loops while on screen.
+   The two exported frames sit on top and fade out/in around the move, so the resting states are the exported screens themselves. */
+function buildPhotoLoop(el){
+  const s = SCREENS[el.dataset.screen]; if (!s || !s.anim) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;          /* stays on the enlarged frame */
+  const sp = el.querySelector('.ann__sprite'), fS = el.querySelector('.ann__frame--small'), fL = el.querySelector('.ann__frame--big'), taps = el.querySelectorAll('.ann__tap');
+  const T = 6100, o = ms => ms / T, EASE = 'cubic-bezier(.4,0,.2,1)';
+  const BIG = 'translate(0%, 0%) scale(1)', SMALL = 'translate(-0.2155%, 26.078%) scale(0.5261)';
+  const opts = { duration:T, iterations:Infinity, fill:'both' };
+  const anims = [
+    sp.animate([ { transform:BIG, offset:0 }, { transform:BIG, offset:o(1150), easing:EASE }, { transform:SMALL, offset:o(1850) },
+                 { transform:SMALL, offset:o(4400), easing:EASE }, { transform:BIG, offset:o(5100) }, { transform:BIG, offset:1 } ], opts),
+    fL.animate([ { opacity:1, offset:0 }, { opacity:1, offset:o(1150) }, { opacity:0, offset:o(1270) }, { opacity:0, offset:o(5030) }, { opacity:1, offset:o(5150) }, { opacity:1, offset:1 } ], opts),
+    fS.animate([ { opacity:0, offset:0 }, { opacity:0, offset:o(1780) }, { opacity:1, offset:o(1900) }, { opacity:1, offset:o(4400) }, { opacity:0, offset:o(4520) }, { opacity:0, offset:1 } ], opts)
+  ];
+  [[1000, taps[0]], [4250, taps[1]]].forEach(([at, tap])=>{
+    anims.push(tap.animate([ { opacity:0, transform:'translate(-50%,-50%) scale(.5)', offset:0 }, { opacity:0, transform:'translate(-50%,-50%) scale(.5)', offset:o(at) },
+      { opacity:.9, transform:'translate(-50%,-50%) scale(.8)', offset:o(at + 120) }, { opacity:0, transform:'translate(-50%,-50%) scale(1.25)', offset:o(at + 520) }, { opacity:0, transform:'translate(-50%,-50%) scale(1.25)', offset:1 } ], opts));
+  });
+  let vis = false;
+  const sync = () => anims.forEach(a => (vis && !document.hidden) ? a.play() : a.pause());
+  anims.forEach(a => a.pause());
+  new IntersectionObserver(es => { vis = es[0].isIntersecting; sync(); }, { threshold:.4 }).observe(el);
+  document.addEventListener('visibilitychange', sync);
+  el.__anims = anims;
+}
+
+/* four-step row */
+function buildSteps(el){
+  el.innerHTML = CALC.map((c,i)=>`<div class="step">${c.src ? `<img src="${c.src}" width="780" height="1682" alt="${esc(c.alt||c.name)}">` : slotHTML(c.name)}<div class="step__cap"><span class="bubble__n">${i+1}</span><div><b>${esc(c.t)}</b><span class="d">${esc(c.d)}</span></div></div></div>`).join('');
+}
+
+/* looping prototype (calculator): crossfades the exported frames and, in one scene, glides the two chosen hexagons up on their own;
+   plays only while visible; the steps beside it follow along and can be clicked */
+function buildLoop(el){
+  const F = LOOP_FRAMES, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sprite = h => `<img class="loop__hex" src="${h.src}" alt="" style="left:${h.l}%;top:${h.t}%;width:${h.w}%;height:${h.h}%">`;
+  const hexes = LOOP_HEX.map(sprite).join('') + LOOP_HEX.map(h=>sprite(h.txt)).join('');
+  el.innerHTML = `<div class="loop__phone"><div class="loop__screen" role="img" aria-label="A looping preview of the calculator flow: pick a substance, add a second, tap to calculate, read the combination card.">${F.map((f,i)=>f.src?`<img src="${f.src}" width="780" height="1682" alt="" ${i?'loading="lazy" decoding="async"':''}>`:'').join('')}<img class="loop__bg" src="${LOOP_EXTRA.bg}" alt="" loading="lazy" decoding="async"><img class="loop__plate" src="${LOOP_EXTRA.plate}" alt="" loading="lazy" decoding="async"><div class="loop__list" style="clip-path:${LOOP_SCROLL.clip}"><img class="loop__lst" src="${LOOP_EXTRA.list}" alt="" loading="lazy" decoding="async"></div><div class="loop__bar" style="left:${LOOP_SCROLL.track[0]}%;top:${LOOP_SCROLL.track[1]}%;width:${LOOP_SCROLL.track[2]}%;height:${LOOP_SCROLL.track[3]}%"></div><div class="loop__thumb" style="left:${LOOP_SCROLL.track[0]}%;top:${LOOP_SCROLL.track[1]}%;width:${LOOP_SCROLL.track[2]}%;height:${LOOP_SCROLL.thumb}%"></div>${hexes}<img class="loop__pair" src="${LOOP_EXTRA.pair}" alt="" loading="lazy" decoding="async"><img class="loop__head" src="${F[F.length-1].src}" alt="" loading="lazy" decoding="async"></div>${reduce?'':'<button class="loop__ctl" type="button">Pause</button>'}</div><ol class="loop__steps">${CALC.map((c,i)=>`<li><button class="loop__step" type="button" data-step="${i}"><span class="bubble__n">${i+1}</span><div><b>${esc(c.t)}</b><span class="d">${esc(c.d)}</span></div></button></li>`).join('')}</ol>`;
+  const scr = el.querySelector('.loop__screen'), q = s => scr.querySelector(s);
+  const frameEls = [...scr.querySelectorAll(':scope > img:not(.loop__bg):not(.loop__plate):not(.loop__hex):not(.loop__pair):not(.loop__head)')];
+  let k = 0; const imgs = F.map(f=>f.src ? frameEls[k++] : null);
+  const bg = q('.loop__bg'), pair = q('.loop__pair'), head = q('.loop__head'), plate = q('.loop__plate'), list = q('.loop__list'), lst = q('.loop__lst'), bar = q('.loop__bar'), thumb = q('.loop__thumb'), allHex = [...scr.querySelectorAll('.loop__hex')];
+  const hexEls = allHex.slice(0, LOOP_HEX.length), txtEls = allHex.slice(LOOP_HEX.length);
+  const extras = [bg, pair, head, plate, list, bar, thumb, ...allHex], iPressed = 4, iCard = 6;
+  const steps = [...el.querySelectorAll('.loop__step')], ctl = el.querySelector('.loop__ctl');
+  let cur = 0, timer = 0, paused = false, vis = false, running = [], stepTimer = 0, stepOn = 0;
+  const mark = n => { stepOn = n; steps.forEach((b,i)=>{ const on = i === n; b.classList.toggle('is-on', on); on ? b.setAttribute('aria-current','step') : b.removeAttribute('aria-current'); }); };
+  const stopScene = () => { running.forEach(a=>a.cancel()); running = []; clearTimeout(stepTimer); };
+  const hideExtras = () => { extras.forEach(x=>{ x.style.transition='none'; x.style.opacity=0; x.style.transform=''; x.style.clipPath=''; x.style.zIndex=0; }); };
+  /* run one animation and keep its end state once it is over */
+  const go = (node, frames, opts) => { const a = node.animate(frames, Object.assign({ fill:'forwards' }, opts)); running.push(a); a.finished.then(()=>{ try { a.commitStyles(); a.cancel(); } catch(e){} }).catch(()=>{}); return a; };
+  function pairScene(){
+    const card = imgs[iCard], pressed = imgs[iPressed];
+    extras.forEach(x=>{ x.style.transition='none'; x.style.transform=''; x.style.clipPath=''; });
+    bg.style.opacity = 1; bg.style.zIndex = 1;                           /* the clean screen under the pressed frame */
+    pair.style.opacity = 0; pair.style.zIndex = 5;
+    head.style.opacity = 0; head.style.zIndex = 7;                                           /* the sentence under the title: it simply appears */
+    card.style.transition = 'none'; card.style.opacity = 0; card.style.zIndex = 6;
+    go(pressed, [{opacity:1},{opacity:0}], { duration:450, easing:'ease-out' });              /* the list and the button let go */
+    hexEls.forEach((h,i)=>{                                                                    /* the two hexagons lift, then glide up and stop */
+      const c = LOOP_HEX[i], t = n => `translate(${n[0]}%, ${n[1]}%)`;
+      h.style.opacity = 1; h.style.zIndex = 3;
+      go(h, [ { transform:`translate(0%, ${c.up}%) scale(1)`, easing:'ease-out' },
+              { transform:`translate(0%, 0%) scale(1)`, offset:350/c.dur, easing:'cubic-bezier(.5,0,.1,1)' },
+              { transform:`translate(${c.to[0]}%, ${c.to[1]}%) scale(1.099)` } ], { duration:c.dur });
+    });
+    txtEls.forEach((h,i)=>{                                                                    /* the words travel with them, but are not scaled: same size as in the last frame */
+      const c = LOOP_HEX[i], d = c.txt;
+      h.style.opacity = 1; h.style.zIndex = 4;
+      go(h, [ { transform:`translate(0%, ${d.up}%)`, easing:'ease-out' },
+              { transform:`translate(0%, 0%)`, offset:350/c.dur, easing:'cubic-bezier(.5,0,.1,1)' },
+              { transform:`translate(${d.to[0]}%, ${d.to[1]}%)` } ], { duration:c.dur });
+    });
+    go(pair, [{opacity:0},{opacity:1}], { duration:250, delay:1550 });
+    go(head, [{opacity:0},{opacity:1}], { duration:300, delay:2250 });                         /* the sentence under the title appears whole, not opened from the middle */                        /* the plus joins them */
+    go(card, [ { opacity:1, clipPath:'inset(22.6% 49.7% 77.2% 49.7%)', easing:'cubic-bezier(.3,0,.3,1)', offset:0 },
+               { opacity:1, clipPath:'inset(22.6% 49.7% 70.6% 49.7%)', easing:'cubic-bezier(.3,0,.2,1)', offset:.3 },
+               { opacity:1, clipPath:'inset(0% 0% 0% 0%)' } ], { duration:850, delay:2300 });  /* the line opens, then the card */
+    stepTimer = setTimeout(()=>mark(3), 2300);
+  }
+  /* the list slides down to show there is more below, then back up: only the cut-out and the scroll bar move */
+  function scrollScene(){
+    const c = LOOP_SCROLL, tot = c.delay + c.down + c.rest + c.up, T = n => n / tot;
+    extras.forEach(x=>{ x.style.transition='none'; x.style.transform=''; if (x !== list) x.style.clipPath=''; });
+    list.style.clipPath = c.clip;
+    plate.style.opacity = 1; plate.style.zIndex = 2; list.style.opacity = 1; list.style.zIndex = 3;
+    bar.style.opacity = 1; bar.style.zIndex = 4; thumb.style.opacity = 1; thumb.style.zIndex = 5;
+    const dy = c.by / 1830 * 100, ty = c.by * c.travel / 1682 / (c.thumb / 100) * 100;      /* % of the cut-out / of the thumb */
+    const kf = v => [ { transform:'translateY(0%)', offset:0 },
+      { transform:'translateY(0%)', offset:T(c.delay), easing:'cubic-bezier(.45,0,.35,1)' },
+      { transform:`translateY(${v}%)`, offset:T(c.delay + c.down) },
+      { transform:`translateY(${v}%)`, offset:T(c.delay + c.down + c.rest), easing:'cubic-bezier(.45,0,.35,1)' },
+      { transform:'translateY(0%)', offset:1 } ];
+    go(lst, kf(-dy), { duration:tot });
+    go(thumb, kf(ty), { duration:tot });
+  }
+  function show(i){
+    const prev = cur, f = F[i]; cur = i;
+    stopScene();
+    if (f.scene) { mark(f.step); if (f.under != null) { const u = imgs[f.under]; u.style.transition='none'; u.style.opacity=1; u.style.zIndex=1; } f.scene === 'scroll' ? scrollScene() : pairScene(); return; }
+    hideExtras();
+    const pj = F[prev] && F[prev].under != null ? F[prev].under : prev;
+    imgs.forEach((im,j)=>{
+      if (!im) return;
+      if (j === i) { im.style.transition = prev === i ? 'none' : `opacity ${f.fade}ms ease`; im.style.clipPath = ''; im.style.zIndex = 2; im.style.opacity = 1; }
+      else if (j === pj) { im.style.zIndex = 1; }
+      else { im.style.transition = 'none'; im.style.opacity = 0; im.style.zIndex = 0; }
+    });
+    if (pj !== i && imgs[pj]) setTimeout(()=>{ if (cur === i) { imgs[pj].style.transition = 'none'; imgs[pj].style.opacity = 0; } }, f.fade + 40);
+    mark(f.step);
+  }
+  function tick(){
+    clearTimeout(timer);
+    if (reduce || paused || !vis || document.hidden) return;
+    timer = setTimeout(()=>{ show((cur + 1) % F.length); tick(); }, F[cur].fade + F[cur].hold);
+  }
+  const jump = n => F.findIndex(f=>f.step === n && !f.scene);
+  steps.forEach(b=>b.addEventListener('click',()=>{ show(jump(+b.dataset.step)); tick(); }));
+  if (ctl) ctl.addEventListener('click',()=>{ paused = !paused; ctl.textContent = paused ? 'Play' : 'Pause'; tick(); });
+  new IntersectionObserver(es=>{ vis = es[0].isIntersecting; tick(); }, { threshold:.4 }).observe(scr);
+  document.addEventListener('visibilitychange', tick);
+  hideExtras(); mark(0);
+}
+
+function spreadBubbles(el){
+  el.querySelectorAll('.ann__col').forEach(col=>{
+    if (getComputedStyle(col).display==='none') return;
+    const bs=[...col.querySelectorAll('.bubble')];
+    bs.forEach(b=>{ b.style.marginTop='0px'; });
+    bs.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+    let prevBottom=col.getBoundingClientRect().top-12;
+    bs.forEach(b=>{
+      const r=b.getBoundingClientRect();
+      const shift=Math.max(0, prevBottom+12-r.top);
+      if (shift) b.style.marginTop=shift+'px';
+      prevBottom=r.bottom+shift;
+    });
+  });
+}
+function drawLines(el){
+  spreadBubbles(el);
+  const svg = el.querySelector('.ann__lines'); if(!svg || getComputedStyle(svg).display==='none') return;
+  const box = el.getBoundingClientRect();
+  const sc = el.querySelector('.pscroll'), sr = sc && sc.getBoundingClientRect();
+  const seen = cy => !sr || (cy >= sr.top + sr.height*.075 && cy <= sr.bottom - sr.height*.15);   /* between the status bar and the tab bar */
+  let out = '';
+  el.querySelectorAll('.ann__dot').forEach((d,i)=>{
+    const bEl = el.querySelector(`.bubble[data-i="${i}"]`); if(!bEl) return;
+    const a = d.getBoundingClientRect(), b = bEl.getBoundingClientRect();
+    const on = seen(a.top + a.height/2); bEl.classList.toggle('is-off', !on); if (!on) return;
+    const x1 = a.left + a.width/2 - box.left, y1 = a.top + a.height/2 - box.top;
+    const isLeft = b.right <= a.left;
+    const x2 = (isLeft ? b.right : b.left) - box.left, y2 = b.top + b.height/2 - box.top;
+    const mx = isLeft ? Math.min(x1 - 14, x2 + 20) : Math.max(x1 + 14, x2 - 20);
+    out += `<line x1="${x1}" y1="${y1}" x2="${mx}" y2="${y1}"/><line x1="${mx}" y1="${y1}" x2="${mx}" y2="${y2}"/><line x1="${mx}" y1="${y2}" x2="${x2}" y2="${y2}"/>`;
+  });
+  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+  svg.innerHTML = out;
+}
+
+/* No orphans: bind the last two words of every text block with a non-breaking space */
+function noOrphans(root){
+  root.querySelectorAll('p, li, h1, h2, h3, .bubble__t, .bubble__d, .bubble__i, .legend b, .legend span.d, .legend span.i, .step__cap b, .step__cap span.d, .loop__step b, .loop__step span.d').forEach(el=>{
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let last=null, n;
+    while ((n = w.nextNode())) if (n.nodeValue.trim()) last = n;
+    if (last) last.nodeValue = last.nodeValue.replace(/\s+(\S+)\s*$/, ' $1');
+  });
+}
+
+document.querySelectorAll('[data-flow]').forEach(buildFlow);
+document.querySelectorAll('[data-steps]').forEach(buildSteps);
+document.querySelectorAll('[data-loop]').forEach(buildLoop);
+const anns = [...document.querySelectorAll('.ann')];
+anns.forEach(buildScreen);
+anns.forEach(buildPhotoLoop);
+/* live scrollbar for the scrolling screen: the thumb follows the scroll, and lines follow the dots */
+function wireScroll(el){
+  const sc = el.querySelector('.pscroll'); if(!sc) return;
+  const bar = el.querySelector('.pbar'), thumb = bar.firstElementChild;
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const track = bar.clientHeight, max = sc.scrollHeight - sc.clientHeight; if (!track || !sc.scrollHeight) return;
+    const h = Math.max(28, track * sc.clientHeight / sc.scrollHeight);
+    thumb.style.height = h + 'px';
+    thumb.style.transform = `translateY(${max > 0 ? (sc.scrollTop / max) * (track - h) : 0}px)`;
+    drawLines(el);
+  };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+  sc.addEventListener('scroll', queue, { passive:true });
+  window.addEventListener('resize', queue);
+  const im = sc.querySelector('img'); if (im) im.addEventListener('load', queue);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(queue);
+  queue();
+}
+anns.forEach(wireScroll);
+noOrphans(document);
+const redraw = () => anns.forEach(drawLines);
+anns.forEach(el => { const im = el.querySelector('img'); if (im) im.addEventListener('load', redraw); });
+if ('ResizeObserver' in window) { const ro = new ResizeObserver(redraw); anns.forEach(el => ro.observe(el)); }
+window.addEventListener('resize', redraw);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+redraw();
+</script>
+</body></html>
