@@ -1,0 +1,22 @@
+# Kept on this computer only, never uploaded to GitHub.
+
+# Old home folder: the home page now lives at the site root (index.html, img/).
+# What stays here: backups (index.before-*.html), index.preview-pending.html, _bit_tmp, older copies.
+home/
+
+# About backups and files the page no longer uses (fonts and CV moved to shared/)
+about/index.before-*.html
+about/fonts/
+about/cv/
+about/img/portrait.webp
+about/img/portrait-2.webp
+
+# Work files anywhere
+**/index.before-*.html
+**/index.preview-pending.html
+**/_bit_tmp/
+
+# Project notes and local tools
+HANDOFF.md
+.claude/
+.DS_Store

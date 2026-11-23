@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Tavor Olivier</title>
+<meta name="description" content="A senior product designer working inside hard-to-crack domains like cybersecurity and high-stakes systems. Complexity is where I do my best work.">
+<link rel="stylesheet" href="../shared/fonts.css">
+<link rel="stylesheet" href="../shared/header.css">
+<script src="../shared/header.js"></script>
+<style>
+  :root{
+    --font-heading:"IBM Plex Sans",system-ui,sans-serif;
+    --font-body:"Manrope",system-ui,sans-serif;
+    --font-nav:"Instrument Sans","Manrope",system-ui,sans-serif;
+    --white:#fff;
+    --soft:#CFCDD2;
+    --gutter:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    min-height:100vh;
+    font-family:var(--font-body);
+    color:var(--white);
+    background-color:#161415;
+    display:flex;flex-direction:column;
+  }
+  /* Background (Figma 81:347, same artwork as Home, turned upright): shown at design size, centered; larger windows scale it up */
+  body::before{
+    content:"";position:fixed;z-index:-1;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;
+    width:max(1605px,100vw);height:max(2406px,100vh);
+    background:#161415 url("img/about-bg.webp") center/cover no-repeat;
+  }
+  @media (max-width:720px){body::before{width:100vw;height:100vh;height:100lvh}}
+  a{color:inherit}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+
+
+  /* Intro (Figma 52:2907): portrait 565px, top at 130px on the 82px header, text column 679px */
+  .intro{display:flex;align-items:flex-start;gap:80px;padding:48px 16px 0 var(--gutter)}
+  .portrait{position:relative;flex:none;width:565px;aspect-ratio:1/1;border-radius:24px;background:#EFEEF1;overflow:hidden}
+  .portrait img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;opacity:.9}
+  .portrait .dash{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .portrait .dash rect{width:calc(100% - 1.5px);height:calc(100% - 1.5px);fill:none;stroke:var(--soft);stroke-width:1.5;stroke-dasharray:6 5}
+  .intro__text{flex:1;min-width:0;max-width:679px;display:flex;flex-direction:column;gap:20px}
+  .eyebrow{font-weight:500;font-size:13px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+  .intro__text h1{font-family:var(--font-heading);font-weight:500;font-size:64px;line-height:72px;color:var(--soft)}
+  .intro__text .name-line{font-family:var(--font-heading);font-weight:500;font-size:30px;line-height:40px;color:var(--soft)}
+  .statement{display:flex;gap:24px;padding:4px 0}
+  .statement::before{content:"";flex:none;width:4px;background:var(--soft)}
+  .statement p{font-family:var(--font-heading);font-weight:400;font-size:28px;line-height:40px;color:var(--soft)}
+  .intro__text .about-last{font-family:var(--font-heading);font-weight:400;font-size:28px;line-height:40px;color:var(--soft);max-width:634px}
+
+  /* How I work (Figma 52:2919) */
+  .how{padding:87px var(--gutter) 222px calc(var(--gutter) - 4px);display:flex;flex-direction:column;gap:16px}
+  .how .eyebrow{color:var(--white)}
+  .how__cols{display:grid;grid-template-columns:repeat(3,minmax(0,400px));gap:16px}
+  .how__card{
+    display:flex;flex-direction:column;gap:18px;padding:28px;border-radius:20px;
+    background:rgba(84,84,92,.6);border:1.5px solid #76757D;
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  }
+  .how__card h3{font-family:var(--font-heading);font-weight:500;font-size:26px;line-height:32px;color:#fff}
+  .how__card--code h3{font-weight:700}
+  .how__card p{font-size:17px;line-height:26px;color:var(--soft);padding-right:5px}
+  .how__card--code p{padding-right:0}
+
+
+
+
+  @media (max-width:1100px){
+    :root{--gutter:40px}
+    .intro{flex-direction:column;align-items:flex-start;gap:40px;padding-right:var(--gutter)}
+    .portrait{width:100%;max-width:565px}
+    .intro__text{max-width:none;width:100%}
+    .how{padding-left:var(--gutter)}
+    .how__cols{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    :root{--gutter:20px}
+    .intro{padding-top:32px}
+    .intro__text h1{font-size:44px;line-height:52px}
+    .intro__text .name-line{font-size:22px;line-height:32px}
+    .statement p,.intro__text .about-last{font-size:20px;line-height:30px}
+    .how{padding-top:64px;padding-bottom:64px}
+    .how__card{padding:24px}
+  }
+</style>
+</head>
+<body>
+
+<site-header current="about" root="../"></site-header>
+
+<main>
+  <section class="intro">
+    <div class="portrait">
+      <img src="img/portrait-3.webp" alt="Portrait of Tavor Olivier" width="565" height="565">
+      <svg class="dash" aria-hidden="true"><rect x=".75" y=".75" rx="23.25"/></svg>
+    </div>
+    <div class="intro__text">
+      <p class="eyebrow">About</p>
+      <h1>Hi, I'm Tavor.</h1>
+      <p class="name-line">It's a name I share with a mountain, a village, a winery, a European tranquilizer, and only about 260 other women in Israel.</p>
+      <div class="statement">
+        <p>I'm drawn to building products for experts and making them work for the people who actually have to use them. I find what the product really needs and shape it into tools people navigate with confidence.</p>
+      </div>
+      <p class="about-last">My foundation is visual design and art direction. For six years I've been a product designer, and I was Coro's first in-house one. Cybersecurity is where I've gone deepest, alongside public-sector systems and medical work.</p>
+    </div>
+  </section>
+
+  <section class="how" aria-labelledby="how-label">
+    <p class="eyebrow" id="how-label">How I work</p>
+    <div class="how__cols">
+      <article class="how__card how__card--code">
+        <h3>Design-true vibe coding</h3>
+        <p>Today I work in Claude Code, and I know how to get good results from it, so a design moves from the design file into the product's code the way I designed it. I design knowing the end result is code: working with front-end developers taught me what a design needs in order to be built, and I carry that into every screen.</p>
+      </article>
+      <article class="how__card">
+        <h3>Bringing UX into the organization</h3>
+        <p>In places where no one has worked with a designer before, I start by listening: how the work is done today, and where it gets stuck. I design alongside the people who will use the system, so UX becomes part of how the team works and not a step added at the end.</p>
+      </article>
+      <article class="how__card">
+        <h3>Turning complexity into clarity</h3>
+        <p>Tangled workflows and unfamiliar screens are where I do my best work. I cut through the noise, keep one clear next step on every screen, and say in plain words what will happen before anyone commits.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>
