@@ -1,0 +1,568 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coro Case Study</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="../../shared/header.css">
+<script src="../../shared/header.js"></script>
+<style>
+/* Dark-only page (decided 30 Oct). Layout: one 1200px column; sections alternate free text, 1fr:2fr, statement, 3 cards, annotated screens, flow.
+   Tokens = Portfolio foundations/design-tokens.css (placeholders). Change values, keep names. */
+:root {
+  --bg:#0F0F1A; --surface:#181826; --surface-strong:#232335; --text:#E4E4EE; --text-muted:#9C9CB0; --border:#2A2A3E;
+  --accent:#B0B0DF; --accent-hover:#C8C8EC; --accent-soft:#25253D; --on-accent:#0F0F1A; --success:#4CC48C; --success-soft:#16301F;
+  --font-heading:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --size-h1:48px; --size-h2:32px; --size-h3:22px; --size-body:17px; --size-small:14px; --size-eyebrow:12px;
+  --weight-regular:400; --weight-medium:500; --weight-bold:600; --weight-heading:500;
+  --leading-tight:1.2; --leading-body:1.6; --tracking-eyebrow:.08em;
+  --space-xs:4px; --space-s:8px; --space-m:16px; --space-l:32px; --space-xl:64px; --space-2xl:120px;
+  --container:1200px; --container-text:720px;
+  --radius-s:8px; --radius-m:12px; --radius-l:20px;
+  --shadow-card:0 2px 6px rgba(0,0,0,.25), 0 12px 40px rgba(0,0,0,.35);
+  --shadow-float:0 8px 32px rgba(0,0,0,.45);
+  --bubble-bg:#181826; --screen-frame:#2A2A3E;
+  color-scheme:dark;
+}
+
+
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:var(--size-body); line-height:var(--leading-body); -webkit-font-smoothing:antialiased; }
+.page { max-width:var(--container); margin:0 auto; padding-block:var(--space-xl) var(--space-2xl);
+  padding-left:max(24px, env(safe-area-inset-left, 0px)); padding-right:max(24px, env(safe-area-inset-right, 0px)); }
+.page > section + section { margin-top:var(--space-2xl); }
+h1, h2, h3 { font-family:var(--font-heading); line-height:var(--leading-tight); text-wrap:balance; margin:0; }
+h1 { font-size:var(--size-h1); font-weight:700; letter-spacing:-.02em; }
+h2 { font-size:var(--size-h2); font-weight:var(--weight-heading); letter-spacing:-.01em; }
+h3 { font-size:var(--size-h3); font-weight:var(--weight-heading); }
+p { margin:0; }
+.prose { max-width:var(--container-text); display:grid; gap:var(--space-m); }
+.muted { color:var(--text-muted); }
+.eyebrow { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--accent); margin-bottom:var(--space-s); }
+a { color:var(--accent); text-underline-offset:3px; }
+a:hover { color:var(--accent-hover); }
+a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+
+/* 1 Header */
+.crumbs { font-size:14px; line-height:22.4px; font-weight:400; color:#D6DDEA; margin-bottom:var(--space-l); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.crumbs__field { display:inline-flex; align-items:center; gap:6px; }
+.crumbs__field svg { width:16px; height:16px; display:block; flex:none; }
+.crumbs a { color:#fff; text-decoration:none; transition:color .15s ease; }
+.crumbs a:hover { color:var(--accent); }
+.crumbs a:focus-visible { outline:2px solid var(--text); outline-offset:3px; border-radius:4px; }
+.header { display:grid; gap:var(--space-m); }
+.role { font-size:var(--size-small); color:var(--text-muted); font-weight:var(--weight-medium); }
+.chips { display:flex; flex-wrap:wrap; gap:var(--space-s); list-style:none; margin:var(--space-s) 0 0; padding:0; }
+.chips li { font-size:13px; font-weight:var(--weight-medium); background:var(--surface-strong); border-radius:999px; padding:4px 12px; }
+
+/* 2 Hero */
+.hero { margin-top:var(--space-xl) !important; }
+.shot { display:block; width:100%; height:auto; border:1px solid var(--screen-frame); border-radius:var(--radius-l); box-shadow:var(--shadow-card); background:var(--surface); }
+
+/* 5 asymmetric */
+.split { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); align-items:start; }
+.split > * { min-width:0; }
+.persona { margin-top:var(--space-l); background:var(--surface); border-radius:var(--radius-m); padding:20px; display:grid; gap:var(--space-s); }
+.persona__top { display:flex; align-items:center; gap:12px; }
+.avatar { width:40px; height:40px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; display:grid; place-items:center; font-size:15px; flex:none; }
+.persona__name { font-weight:var(--weight-bold); line-height:1.3; }
+.persona__role { font-size:13px; color:var(--text-muted); line-height:1.3; }
+.persona p { font-size:var(--size-small); color:var(--text-muted); }
+.cut { margin-top:var(--space-m); border-left:2px solid var(--border); padding-left:var(--space-m); font-size:var(--size-small); color:var(--text-muted); }
+
+/* rhythm break */
+.statement { border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding-block:var(--space-xl); }
+.statement p { font-family:var(--font-heading); font-size:clamp(28px, 4.2vw, 48px); line-height:1.15; font-weight:var(--weight-heading); letter-spacing:-.02em; max-width:18ch; text-wrap:balance; }
+.statement p span { color:var(--accent); }
+
+/* 7 principles */
+.section-head { display:grid; gap:var(--space-s); margin-bottom:var(--space-l); max-width:var(--container-text); }
+.cards { display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-m); counter-reset:p; }
+.card { border:1px solid var(--border); border-radius:var(--radius-m); padding:24px; display:grid; gap:var(--space-s); align-content:start; }
+.card h3 { font-size:19px; }
+.card p { font-size:15px; color:var(--text-muted); }
+.card__where { font-size:12px; color:var(--accent); font-weight:var(--weight-medium); margin-top:var(--space-xs); }
+
+/* screens */
+.moment { display:grid; gap:var(--space-l); }
+.moment + .moment { margin-top:var(--space-xl); }
+.moment__copy { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); }
+.moment__copy > * { min-width:0; }
+.stepnum { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--text-muted); font-weight:var(--weight-bold); margin-bottom:var(--space-xs); }
+
+/* annotated screen */
+.ann { --img-max:none; position:relative; display:grid; grid-template-columns:minmax(0, var(--img-max)) 300px; column-gap:40px; justify-content:center; }
+.ann--1fr { grid-template-columns:minmax(0,1fr) 300px; }
+.ann__img { position:relative; min-width:0; }
+.ann__img img { display:block; width:100%; height:auto; border:1px solid var(--screen-frame); border-radius:var(--radius-m); box-shadow:var(--shadow-card); background:var(--surface); }
+.ann__dot { position:absolute; width:24px; height:24px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:700;
+  display:grid; place-items:center; transform:translate(-50%,-50%); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); z-index:2; }
+.ann__lines { position:absolute; inset:0; pointer-events:none; overflow:visible; z-index:1; }
+.ann__lines line { stroke:var(--accent); stroke-width:1.5; stroke-dasharray:6 4; }
+.ann__col { position:relative; min-width:0; }
+.ann--L { grid-template-columns:300px minmax(0, var(--img-max)) 300px; }
+.ann--L .ann__img { grid-column:2; grid-row:1; }
+.ann--L .ann__col--left { grid-column:1; grid-row:1; }
+.ann--L .ann__col--right { grid-column:3; grid-row:1; }
+.ann--L.ann--noR { grid-template-columns:300px minmax(0, var(--img-max)); }
+.bubble { position:absolute; left:0; right:0; background:var(--bubble-bg); border:1.5px solid var(--accent); border-radius:var(--radius-m); padding:14px 16px; box-shadow:var(--shadow-float); transform:translateY(-50%); }
+.bubble__t { display:flex; gap:8px; align-items:baseline; font-weight:var(--weight-bold); font-size:15px; color:var(--accent); line-height:1.3; }
+.bubble__n { flex:none; font-size:11px; width:18px; height:18px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:inline-grid; place-items:center; transform:translateY(-1px); }
+.bubble__d { font-size:13.5px; color:var(--text); line-height:1.45; margin-top:4px; }
+.bubble__i { font-size:13px; font-weight:var(--weight-bold); color:var(--accent); line-height:1.4; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+.legend { display:none; list-style:none; margin:var(--space-m) 0 0; padding:0; gap:12px; }
+
+/* 9 deep-dive */
+.dive-context { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); margin-bottom:var(--space-xl); }
+.dive-context > * { min-width:0; }
+
+/* flow diagram (from Portfolio foundations/flow-diagram-captions.html) */
+.flow { display:grid; gap:var(--space-m); margin-bottom:var(--space-xl); }
+.flow__card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-l); padding:var(--space-l); overflow-x:auto; }
+.flow__legend { display:flex; flex-wrap:wrap; gap:var(--space-m) var(--space-l); margin:0 0 var(--space-l); padding:0; list-style:none; }
+.flow__legend li { display:flex; align-items:center; gap:var(--space-s); font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--text-muted); font-weight:var(--weight-medium); }
+.swatch { width:18px; height:12px; border-radius:4px; flex:none; }
+.swatch--human { background:var(--bg); border:1px solid var(--border); }
+.swatch--ai { background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.swatch--decide { background:var(--accent); }
+.swatch--end { background:var(--success-soft); border:1px solid color-mix(in srgb, var(--success) 45%, transparent); border-radius:999px; }
+.flow__svg { width:100%; min-width:900px; height:auto; display:block; overflow:visible; }
+.flow__svg text { font-family:var(--font-body); }
+.lane-label { font-size:11px; letter-spacing:.1em; font-weight:600; fill:var(--text-muted); }
+.lane-ai { fill:var(--accent-soft); opacity:.55; }
+.lane-rule { stroke:var(--border); stroke-width:1; }
+.node { fill:var(--bg); stroke:var(--border); stroke-width:1; }
+.node--ai { fill:var(--accent-soft); stroke:color-mix(in srgb, var(--accent) 35%, transparent); }
+.node--decide { fill:var(--accent); stroke:var(--accent); }
+.node--end { fill:var(--success-soft); stroke:color-mix(in srgb, var(--success) 45%, transparent); }
+.n-step { font-size:10px; letter-spacing:.1em; font-weight:600; fill:var(--text-muted); }
+.n-title { font-size:14px; font-weight:600; fill:var(--text); }
+.n-sub { font-size:12px; fill:var(--text-muted); }
+.on-accent .n-step { fill:color-mix(in srgb, var(--on-accent) 75%, transparent); }
+.on-accent .n-title { fill:var(--on-accent); }
+.on-accent .n-sub { fill:color-mix(in srgb, var(--on-accent) 85%, transparent); }
+.wire { fill:none; stroke:var(--text-muted); stroke-width:1.25; stroke-linecap:round; stroke-linejoin:round; opacity:.7; }
+.head { fill:var(--text-muted); opacity:.7; }
+.check { fill:var(--success); }
+.check-mark { fill:none; stroke:var(--bg); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.n-cap { font-size:12px; fill:var(--text-muted); }
+.flow__list { display:none; margin:0; padding:0; list-style:none; }
+.flow__list li { position:relative; padding:0 0 var(--space-m) 28px; }
+.flow__list li::before { content:""; position:absolute; left:4px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--bg); border:2px solid var(--text-muted); }
+.flow__list li::after { content:""; position:absolute; left:9px; top:32px; bottom:0; width:1.5px; background:var(--border); }
+.flow__list li:last-child::after { display:none; }
+.fstep { border-radius:var(--radius-m); padding:12px 14px; background:var(--bg); border:1px solid var(--border); }
+.fstep--ai { background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+.fstep--decide { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.fstep--end { background:var(--success-soft); border-color:color-mix(in srgb, var(--success) 45%, transparent); }
+.fstep__meta { display:flex; justify-content:space-between; font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--text-muted); margin-bottom:4px; }
+.fstep--decide .fstep__meta, .fstep--decide .fstep__sub { color:color-mix(in srgb, var(--on-accent) 80%, transparent); }
+.fstep__title { font-size:15px; font-weight:600; }
+.fstep__sub { font-size:13px; color:var(--text-muted); }
+.fstep__why { font-size:13px; margin-top:8px; color:var(--text-muted); }
+
+/* 10 impact */
+.impact { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); }
+.impact > * { min-width:0; }
+.outcomes { list-style:none; margin:0; padding:0; display:grid; gap:var(--space-m); }
+.outcomes li { display:grid; grid-template-columns:24px 1fr; gap:12px; }
+.tick { width:22px; height:22px; border-radius:50%; background:var(--success-soft); color:var(--success); display:grid; place-items:center; font-size:13px; font-weight:700; margin-top:2px; }
+.lessons { margin-top:var(--space-l); display:grid; gap:var(--space-m); }
+.lesson { border-top:1px solid var(--border); padding-top:var(--space-m); display:grid; gap:4px; }
+.lesson strong { font-weight:var(--weight-bold); }
+.lesson span { color:var(--text-muted); font-size:15px; }
+
+
+.lede { font-size:20px; line-height:1.55; }
+.compare { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-m); margin-top:var(--space-s); }
+.compare__card { border:1px solid var(--border); border-radius:var(--radius-m); padding:20px; display:grid; gap:6px; align-content:start; min-width:0; }
+.compare__card--ours { border-color:var(--accent); background:var(--accent-soft); }
+.compare__label { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--text-muted); }
+.compare__card--ours .compare__label { color:var(--accent); }
+.compare__card h3 { font-size:19px; }
+.compare__card ul { margin:4px 0 0; padding-left:18px; font-size:15px; color:var(--text-muted); display:grid; gap:4px; }
+.chapter-head { border-top:1px solid var(--border); padding-top:var(--space-l); margin-bottom:var(--space-xl); display:grid; gap:var(--space-s); }
+.chapter-head > * { max-width:820px; }
+.statement + section .chapter-head { border-top:0; padding-top:0; }
+.chapter-head h2 { font-size:clamp(28px, 3.4vw, 40px); }
+.chapter-head .muted { font-size:18px; line-height:1.6; color:#C4C4D3; max-width:680px; margin-top:var(--space-s); }
+.chapter-head .eyebrow { margin:0; }
+.stepnum--step { text-transform:uppercase !important; letter-spacing:var(--tracking-eyebrow) !important; font-style:normal !important; font-weight:var(--weight-bold) !important; font-size:var(--size-eyebrow) !important; }
+.stepnum { text-transform:none; letter-spacing:0; font-style:italic; font-weight:var(--weight-medium); font-size:15px; }
+.bridge { display:grid; grid-template-columns:1fr 2fr; gap:var(--space-xl); background:var(--surface); border-radius:var(--radius-l); padding:var(--space-xl) var(--space-l); }
+.bridge > * { min-width:0; }
+.cards--tight { margin-bottom:var(--space-xl); }
+.lessons--first { margin-top:0; }
+
+.outcome { margin-top:var(--space-xl); border-left:3px solid var(--accent); padding:4px 0 4px var(--space-l); max-width:var(--container-text); display:grid; gap:var(--space-xs); }
+.outcome p:last-child { font-size:20px; line-height:1.5; }
+.outcome .eyebrow { margin:0; }
+
+
+/* No orphans: never leave a single word alone on the last line */
+p, li, h1, h2, h3, .bubble__t, .bubble__d, .bubble__i, .legend b, .legend span { text-wrap: pretty; }
+/* more work: field tabs. Matches Figma node 47:2512 (white chips, gray icons, active = gradient + white ring) */
+.lbl { font-size:var(--size-eyebrow); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:var(--weight-bold); color:var(--text-muted); margin:0 0 16px; text-align:center; }
+.switch { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; }
+.sw { display:flex; flex-direction:column; align-items:center; gap:6px; width:120px; text-align:center; text-decoration:none; color:var(--text-muted); font-size:13px; line-height:1.6; }
+.sw .chip { width:64px; height:64px; border-radius:18px; background:#fff; color:#76757D; display:grid; place-items:center; transition:transform .2s ease; }
+.sw .chip svg { width:36px; height:36px; display:block; fill:currentColor; stroke:none; }
+.sw--cyber .chip, .sw--field .chip { border-radius:16px; }
+.sw--cyber .chip svg { width:37px; height:37px; }
+.sw--fin .chip svg { width:38px; height:38px; }
+.sw.on { color:var(--text); font-weight:700; }
+.sw.on .chip { background:linear-gradient(to right,#262260,#614DA6); box-shadow:inset 0 0 0 4px #fff; color:#fff; }
+.sw.soon { cursor:default; }
+.sw:not(.on):not(.soon):hover { color:var(--text); }
+.sw:not(.on):not(.soon):hover .chip { transform:translateY(-2px); }
+.sw:focus-visible { outline:2px solid var(--text); outline-offset:4px; border-radius:12px; }
+/* 11 CTA */
+.cta { background:var(--accent-soft); border-radius:var(--radius-l); padding:var(--space-xl) var(--space-l); display:grid; gap:var(--space-m); justify-items:start; }
+.cta__links { display:flex; flex-wrap:wrap; gap:var(--space-s) var(--space-l); font-weight:var(--weight-medium); }
+.cta__links span { user-select:all; }
+
+
+/* Hover zoom: every screen grows a little on hover so its UI reads better.
+   Pointer devices only; bubbles and lines step back while a screen is zoomed. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .shot, .ann__img { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; transform-origin: center; }
+  .shot:hover { transform: scale(1.08); box-shadow: var(--shadow-float); position: relative; z-index: 3; }
+  .ann__img:hover { transform: scale(1.15); z-index: 5; }
+  .ann__img:hover img { box-shadow: var(--shadow-float); }
+  .ann__col .bubble, .ann__lines { transition: opacity .25s ease; }
+  .ann:has(.ann__img:hover) .ann__lines { opacity: 0; }
+  .ann:has(.ann__img:hover) .bubble { opacity: .35; }
+  .ann__img { cursor: zoom-in; }
+}
+
+@media (max-width: 900px) { .cards { grid-template-columns:1fr; } }
+@media (max-width: 1100px) {
+  .ann--L { grid-template-columns:200px minmax(0, var(--img-max)) 200px; column-gap:24px; }
+  .ann--L.ann--noR { grid-template-columns:200px minmax(0, var(--img-max)); }
+}
+@media (max-width: 767px) {
+  :root { --size-h1:34px; --size-h2:26px; --size-h3:20px; --size-body:16px; --space-2xl:80px; --space-xl:40px; }
+  .page { padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+  .split, .moment__copy, .dive-context, .impact, .bridge, .compare { grid-template-columns:1fr; gap:var(--space-m); }
+  .bridge { padding:var(--space-l) var(--space-m); }
+  .ann, .ann--1fr, .ann--L, .ann--L.ann--noR { grid-template-columns:minmax(0,1fr); }
+  .ann--L .ann__img { grid-column:1; }
+  .ann__col, .ann__lines { display:none; }
+  .legend { display:grid; }
+  .legend li { display:grid; grid-template-columns:22px 1fr; gap:10px; font-size:14px; }
+  .legend .bubble__n { width:20px; height:20px; margin-top:2px; }
+  .legend b { display:block; }
+  .legend span.d { color:var(--text-muted); font-size:13px; }
+  .legend span.i { display:block; color:var(--accent); font-weight:var(--weight-bold); font-size:13px; margin-top:2px; }
+  .flow__card { padding:var(--space-m); }
+  .flow__svg { display:none; }
+  .flow__list { display:block; }
+  .cta { padding:var(--space-l) var(--space-m); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<site-header current="coro" root="../../"></site-header>
+
+<main class="page">
+
+  <!-- 1 Opening -->
+  <section class="header" aria-labelledby="title">
+    <nav class="crumbs" aria-label="Breadcrumb"><span class="crumbs__field"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M7.73251 15.9217C7.89501 16.026 8.10499 16.026 8.26749 15.9217C8.26749 15.9217 9.95001 14.852 11.4525 13.8955C13.04 12.8857 14 11.1357 14 9.25525V2.5C14 2.2465 13.81 2.033 13.5575 2.0035C11.475 1.759 9.65501 1.221 8.32001 0.114999C8.13501 -0.0382515 7.86499 -0.0382515 7.67999 0.114999C6.34499 1.221 4.525 1.759 2.4425 2.0035C2.19 2.033 2 2.2465 2 2.5V9.25525C2 11.1357 2.95999 12.8857 4.54749 13.8955C6.04999 14.852 7.73251 15.9217 7.73251 15.9217ZM7.70999 14.1565L5.01749 12.306C4.06749 11.653 3.5 10.5745 3.5 9.422V3.75C3.5 3.4975 3.6875 3.28475 3.94 3.25375C5.4225 3.0705 6.72001 2.7035 7.67001 1.87325C7.86001 1.709 8.13999 1.709 8.32999 1.87325C9.27999 2.7035 10.5775 3.0705 12.0625 3.25375C12.3125 3.28475 12.5 3.4975 12.5 3.75V9.422C12.5 10.5745 11.9325 11.653 10.9825 12.306L8.29001 14.1565L8.2175 14.2005L8.125 14.2345L8.04251 14.248H7.95749L7.875 14.2345L7.79501 14.206L7.73749 14.1757C7.72749 14.1697 7.71749 14.1632 7.70999 14.1565ZM8 13.1432L5.58499 11.482C4.90499 11.0155 4.5 10.2452 4.5 9.422V4.1855C5.855 3.9775 7.05 3.59075 8 2.8905C8.95 3.59075 10.145 3.9775 11.5 4.1855V9.422C11.5 10.2452 11.095 11.0155 10.415 11.482L8 13.1432Z"/></svg>Cybersecurity SaaS</span><span aria-hidden="true">·</span><a href="../../">All work</a></nav>
+    <h1 id="title">Analyst-grade security, designed for IT teams</h1>
+    <p class="role">First Product Designer, Coro</p>
+    <ul class="chips" aria-label="Tags"><li>Cybersecurity</li><li>EDR</li><li>Telemetry</li><li>AI Agent</li><li>Enterprise SaaS</li></ul>
+  </section>
+
+  <section class="hero">
+    <img class="shot" src="images/hero.png" width="1440" height="1066" alt="Coro console Actionboard: open tickets by module, an EDR panel with top detections, security gaps and a Workspace Health Score of 91">
+  </section>
+
+  <section class="prose" aria-label="Summary">
+    <p class="lede">Coro is a cybersecurity platform for companies without a security team. As its first product designer, I designed the console, its design system, and the EDR module from zero. This case follows one thread through that work: taking tools built for security analysts and making them usable for IT people, for whom security is one part of a long day. It ends with an AI layer that takes the same idea one step further.</p>
+  </section>
+
+  <!-- 2 The user and the gap -->
+  <section class="split" aria-labelledby="gap">
+    <div>
+      <p class="eyebrow">The user</p>
+      <h2 id="gap">EDR is built for analysts. Coro's users are IT admins.</h2>
+    </div>
+    <div class="prose">
+      <p>Endpoint detection and response (EDR) records what runs on every device and flags what looks malicious. In most products it assumes a security operations center: trained analysts who read process trees and write queries all day. Coro's customers usually don't have one.</p>
+      <p>The person who opens the EDR is the IT admin, who also handles laptops, accounts and the printer that stopped working. They need to know what something means and what to do about it, and they search by what they already know: a device, a user, a program.</p>
+    </div>
+  </section>
+
+  <!-- Rhythm break -->
+  <section class="statement" aria-label="Guiding principle">
+    <p>Keep the analyst's power. <span>Remove the analyst's requirements.</span></p>
+  </section>
+
+  <!-- 3 Chapter 1: EDR -->
+  <section aria-labelledby="ch1">
+    <div class="chapter-head">
+      <p class="eyebrow">Chapter 1</p>
+      <h2 id="ch1">EDR and Telemetry, made usable</h2>
+      <p class="muted">The EDR module has three parts: Processes, Telemetry and Allow/Block lists. Each one started from a question an IT admin would actually ask.</p>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum">"What is this, and where is it running?"</p><h3>One process, every device</h3></div>
+        <p>Raw EDR data arrives as separate events on separate devices. An IT admin doesn't think in events. They think in programs and machines. The Processes tab groups activity by process and shows how many devices run it, where it lives on disk, under which names, and which open tickets it has triggered. Response actions sit right on the process, so the next step is in the same place as the question.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="e1"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum">"What will happen if I click this?"</p><h3>Say the consequence, block the dangerous choice</h3></div>
+        <p>The Allow/Block list holds every exception, each with its reason. Allowing a process means the EDR stops watching it, which is a big decision to make in a small dialog. The dialog says in plain words what will change: no more tickets, and no data in Telemetry or Processes. When someone tries to allow a system process that attackers commonly abuse, the console stops them and explains why, instead of failing silently or trusting them blindly.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="e2"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum">"Show me everything this user did on this device."</p><h3>Telemetry search without a query language</h3></div>
+        <p>Investigating an incident often means searching several values at once: a specific user and a specific event. With single-value search, admins ran separate searches and cross-checked the results in their heads. The search bar became a guided query builder. Pick a field, an operator and a value, and each condition becomes a chip; chips stack into one combined query. The field menu opens into forensic values like registry keys, account events and scheduled tasks, and an expanded row lays out each record in labeled fields.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="e3"></div>
+    </div>
+    <div class="outcome">
+      <p class="eyebrow">Outcome</p>
+      <p>Opening EDR to IT admins meant more kinds of customers could use it. In this form it became part of Coro's product package, and it helped sell the module to existing customers and bring in new ones.</p>
+    </div>
+  </section>
+
+  <!-- 4 Bridge -->
+  <section class="bridge" aria-labelledby="bridge">
+    <div>
+      <p class="eyebrow">From data to AI</p>
+      <h2 id="bridge">The next gap</h2>
+    </div>
+    <div class="prose">
+      <p>I designed this concept in 2025, when AI agents inside security consoles were still rare and far less capable than today. It grew out of the EDR work. I knew where IT admins got stuck: the data was all there, but turning it into a decision still took an analyst's knowledge. An AI layer could close that gap.</p>
+      <p>The harder question was how far it should go. If it acts alone, the admin loses control of their own environment. If it only adds text, it adds noise. I designed for what the agent should never take away from the admin, so the principles would hold as the technology got better.</p>
+    </div>
+  </section>
+
+  <!-- 5 Chapter 2: Coro AI -->
+  <section aria-labelledby="ch2">
+    <div class="chapter-head">
+      <p class="eyebrow">Chapter 2</p>
+      <h2 id="ch2">Coro AI: the agent points the way, the ticket is where you act</h2>
+      <p class="muted">One incident, followed from the Actionboard to a resolved, documented ticket. Jordan is an IT Security Administrator: hands-on and security-savvy, but not an analyst.</p>
+    </div>
+
+    <div class="cards cards--tight">
+      <article class="card"><h3>Explain before acting</h3><p>The agent opens with a plain-language verdict: what is happening and what it's based on.</p></article>
+      <article class="card"><h3>Consequences next to every action</h3><p>Each recommended action says what it fixes and what it costs users, before anyone selects it.</p></article>
+      <article class="card"><h3>The human confirms and can override</h3><p>Nothing runs without explicit approval. A skipped recommendation keeps its reason on record.</p></article>
+    </div>
+
+    <div class="flow" aria-labelledby="flow-title">
+      <p class="eyebrow" style="margin:0">The flow</p>
+      <h3 id="flow-title">Coro AI suggests. Jordan decides.</h3>
+      <div class="flow__card">
+        <ul class="flow__legend" aria-label="Legend">
+          <li><span class="swatch swatch--human"></span>Jordan's step</li>
+          <li><span class="swatch swatch--ai"></span>Coro AI step</li>
+          <li><span class="swatch swatch--decide"></span>Jordan's decision</li>
+          <li><span class="swatch swatch--end"></span>Outcome</li>
+        </ul>
+        <svg class="flow__svg" viewBox="0 0 1190 306" role="img" aria-label="Flow: Actionboard, Coro AI names the threat, recommends 3 actions, Jordan picks 2, confirms, ticket resolved">
+          <rect class="lane-ai" x="0" y="176" width="1190" height="128" rx="14"/>
+          <line class="lane-rule" x1="0" y1="160" x2="1190" y2="160"/>
+          <text class="lane-label" x="16" y="30">JORDAN</text>
+          <text class="lane-label" x="16" y="214">CORO AI</text>
+          <path class="wire" d="M270 80 H370 V206"/><path class="wire" d="M450 250 H462"/><path class="wire" d="M550 214 V80 H642"/><path class="wire" d="M810 80 H822"/><path class="wire" d="M990 80 H1002"/>
+          <path class="head" d="M365 206 L370 214 L375 206 Z"/><path class="head" d="M462 245 L470 250 L462 255 Z"/><path class="head" d="M642 75 L650 80 L642 85 Z"/><path class="head" d="M822 75 L830 80 L822 85 Z"/><path class="head" d="M1002 75 L1010 80 L1002 85 Z"/>
+          <rect class="node" x="110" y="44" width="160" height="72" rx="12"/>
+          <text class="n-step" x="124" y="64">SCREEN 1</text><text class="n-title" x="124" y="84">Actionboard</text><text class="n-sub" x="124" y="102">3 gaps need attention</text>
+          <rect class="node node--ai" x="290" y="214" width="160" height="72" rx="12"/>
+          <text class="n-step" x="304" y="234">SCREEN 2</text><text class="n-title" x="304" y="254">Names the threat</text><text class="n-sub" x="304" y="272">One gap to handle first</text>
+          <rect class="node node--ai" x="470" y="214" width="160" height="72" rx="12"/>
+          <text class="n-step" x="484" y="234">SCREEN 3</text><text class="n-title" x="484" y="254">Recommends 3</text><text class="n-sub" x="484" y="272">Each shows its cost</text>
+          <rect class="node node--decide" x="650" y="44" width="160" height="72" rx="12"/>
+          <g class="on-accent"><text class="n-step" x="664" y="64">SCREEN 3</text><text class="n-title" x="664" y="84">Picks 2 of 3</text><text class="n-sub" x="664" y="102">Skips Contain</text></g>
+          <rect class="node" x="830" y="44" width="160" height="72" rx="12"/>
+          <text class="n-step" x="844" y="64">SCREEN 4</text><text class="n-title" x="844" y="84">Confirms</text><text class="n-sub" x="844" y="102">Only his picks run</text>
+          <rect class="node node--end" x="1010" y="44" width="160" height="72" rx="36"/>
+          <circle class="check" cx="1150" cy="62" r="8"/><path class="check-mark" d="M1146 62 l3 3 l5 -6"/>
+          <text class="n-step" x="1028" y="64">SCREEN 5</text><text class="n-title" x="1028" y="84">Resolved</text><text class="n-sub" x="1028" y="102">Logged, can reopen</text>
+        </svg>
+        <ol class="flow__list">
+          <li><div class="fstep"><div class="fstep__meta"><span>Jordan</span><span>Screen 1</span></div><p class="fstep__title">Actionboard</p><p class="fstep__sub">3 gaps need attention</p></div></li>
+          <li><div class="fstep fstep--ai"><div class="fstep__meta"><span>Coro AI</span><span>Screen 2</span></div><p class="fstep__title">Names the threat</p><p class="fstep__sub">One gap to handle first</p></div></li>
+          <li><div class="fstep fstep--ai"><div class="fstep__meta"><span>Coro AI</span><span>Screen 3</span></div><p class="fstep__title">Recommends 3 actions</p><p class="fstep__sub">Each shows its cost</p></div></li>
+          <li><div class="fstep fstep--decide"><div class="fstep__meta"><span>Jordan decides</span><span>Screen 3</span></div><p class="fstep__title">Picks 2 of 3</p><p class="fstep__sub">Skips Contain</p></div></li>
+          <li><div class="fstep"><div class="fstep__meta"><span>Jordan</span><span>Screen 4</span></div><p class="fstep__title">Confirms</p><p class="fstep__sub">Only his picks run</p></div></li>
+          <li><div class="fstep fstep--end"><div class="fstep__meta"><span>Outcome</span><span>Screen 5</span></div><p class="fstep__title">Resolved</p><p class="fstep__sub">Logged, can reopen</p></div></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum stepnum--step">Screen 1</p><h3>Start where Jordan starts</h3></div>
+        <p>Jordan's day begins on the Actionboard. The most critical signals sit in the top band: open tickets, security gaps and the Workspace Health Score. Detail waits one level down. Today three Security Gaps need attention, and Coro AI is one click away in the header, as it is on every screen.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="1"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum stepnum--step">Screen 2</p><h3>An overview, not a to-do list</h3></div>
+        <p>Opening Coro AI doesn't pour every alert onto Jordan. The agent correlates EDR telemetry across devices and gives one plain-language verdict: an active credential-theft chain on 3 devices, a confirmed threat that needs action now. It points to the one gap to handle first and names only the two others. Actions stay out of this panel on purpose: the agent directs, the ticket is where you act.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="2"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum stepnum--step">Screen 3</p><h3>Every action shows its cost</h3></div>
+        <p>Inside the ticket, Coro AI's analysis sits above three recommended actions: Contain, Eradicate and Recover. Each one says what it fixes and what it costs users. Isolation cuts devices off the network; a credential reset makes affected users sign in again. The AI recommends all three. Jordan sees no lateral movement or active C2 in the evidence, so he selects two and leaves Contain unchecked.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="3"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum stepnum--step">Screen 4</p><h3>Nothing runs by surprise</h3></div>
+        <p>Before anything executes, a pop-up lists exactly what Jordan selected: Terminate Process &amp; Remove Persistence, and Force Credential Reset. Nothing else. Cancel returns him to his selection untouched; Apply Actions runs them.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="4"></div>
+    </div>
+
+    <div class="moment">
+      <div class="moment__copy">
+        <div><p class="stepnum stepnum--step">Screen 5</p><h3>Closed, documented, reversible</h3></div>
+        <p>The ticket resolves in place. The list stays, only this row turns green, and a toast confirms the Workspace Health Score is restored. Applied actions lock as history, while the skipped one stays visible with Jordan's reason. His comment and the activity log record what was done, what wasn't, and why. Reopen stays one click away if the threat comes back.</p>
+      </div>
+      <div class="ann ann--1fr" data-screen="5"></div>
+    </div>
+  </section>
+
+  <!-- 7 Reflection -->
+  <section class="impact" aria-labelledby="impact">
+    <div>
+      <p class="eyebrow">Reflection</p>
+      <h2 id="impact">What this work taught me</h2>
+    </div>
+    <div>
+      <div class="lessons lessons--first">
+        <div class="lesson"><strong>Design for the person who opens the screen, not the one the category assumes.</strong><span>EDR conventions come from SOC teams. Starting from the IT admin's questions changed what each tab shows first.</span></div>
+        <div class="lesson"><strong>Explain the consequence at the moment of the decision.</strong><span>The allowlist dialog and the AI's recommended actions follow the same rule: say what will change before anyone commits.</span></div>
+        <div class="lesson"><strong>Say it once, in the right place.</strong><span>The agent directs and the ticket acts. Giving each layer one job made both clearer.</span></div>
+        <div class="lesson"><strong>Design for where the technology is going.</strong><span>The models were limited when I started. The principles were written so they would still hold when the models improved.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- More work -->
+  <section class="more" aria-label="More work">
+    <p class="lbl">More work</p>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="sw-shield" viewBox="0 0 37 37"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.8814 36.819C18.2572 37.0601 18.7428 37.0601 19.1186 36.819C19.1186 36.819 23.0094 34.3452 26.4839 32.1333C30.155 29.7983 32.375 25.7514 32.375 21.4027V5.78123C32.375 5.19501 31.9356 4.70129 31.3517 4.63307C26.5359 4.06767 22.3272 2.82354 19.24 0.265915C18.8122 -0.0884756 18.1878 -0.0884756 17.76 0.265915C14.6728 2.82354 10.4641 4.06767 5.64829 4.63307C5.06439 4.70129 4.625 5.19501 4.625 5.78123V21.4027C4.625 25.7514 6.84497 29.7983 10.5161 32.1333C13.9906 34.3452 17.8814 36.819 17.8814 36.819ZM17.8294 32.7369L11.6029 28.4576C9.40606 26.9475 8.09375 24.4535 8.09375 21.7884V8.67185C8.09375 8.08795 8.52735 7.59596 9.11126 7.52427C12.5395 7.10051 15.54 6.25182 17.7369 4.33187C18.1763 3.95204 18.8237 3.95204 19.2631 4.33187C21.46 6.25182 24.4605 7.10051 27.8945 7.52427C28.4727 7.59596 28.9062 8.08795 28.9062 8.67185V21.7884C28.9062 24.4535 27.5939 26.9475 25.3971 28.4576L19.1706 32.7369L19.003 32.8386L18.7891 32.9173L18.5983 32.9485H18.4017L18.2109 32.9173L18.026 32.8514L17.8929 32.7814C17.8698 32.7675 17.8467 32.7525 17.8294 32.7369ZM18.5 30.3937L12.9153 26.5521C11.3428 25.4733 10.4062 23.6921 10.4062 21.7884V9.67894C13.5397 9.19794 16.3031 8.30359 18.5 6.68426C20.6969 8.30359 23.4603 9.19794 26.5938 9.67894V21.7884C26.5938 23.6921 25.6572 25.4733 24.0847 26.5521L18.5 30.3937Z" fill="currentColor"/></symbol><symbol id="sw-tools" viewBox="0 0 36 36"><path d="M12.0585 7.83246C12.2837 7.03849 12.3488 6.19566 12.2467 5.37511C12.0769 4.00859 11.472 2.7713 10.4977 1.79698C10.2432 1.54245 9.96356 1.30816 9.66663 1.10088C8.6355 0.380953 7.42198 0.000211053 6.15748 1.15901e-07C5.79572 -7.01966e-05 5.43164 0.0318517 5.07495 0.0949923C4.69948 0.161508 4.39812 0.415828 4.26902 0.775125C4.13937 1.13576 4.21003 1.52515 4.45802 1.81673L6.42495 4.12966L4.12973 6.42487L1.81688 4.45795C1.52515 4.20989 1.13569 4.1393 0.775055 4.26902C0.415688 4.39833 0.161438 4.69969 0.0949923 5.07495C0.0318517 5.43129 -7.01966e-05 5.79551 1.15901e-07 6.15741C0.000281366 7.42198 0.380953 8.6355 1.10088 9.66663C1.30795 9.96328 1.54216 10.2428 1.79698 10.4977C2.7713 11.472 4.00859 12.0769 5.37511 12.2467C6.19566 12.3488 7.03842 12.2837 7.83246 12.0585L12.531 16.757L16.757 12.531L12.0585 7.83246Z" fill="currentColor"/><path d="M23.9415 28.1676C23.7163 28.9616 23.6512 29.8044 23.7532 30.6249C23.9231 31.9915 24.5279 33.2288 25.5023 34.2031C25.7572 34.458 26.0367 34.6921 26.3334 34.8992C27.3646 35.6191 28.578 35.9998 29.8426 36.0001C30.2045 36.0001 30.5687 35.9682 30.9251 35.9051C31.3003 35.8385 31.6017 35.5844 31.731 35.225C31.8608 34.8644 31.7901 34.475 31.542 34.1833L29.5751 31.8704L31.8703 29.5752L34.1833 31.5421C34.4748 31.7901 34.8643 31.8608 35.2249 31.7311C35.5842 31.6019 35.8386 31.3006 35.905 30.9251C35.9681 30.5685 36.0001 30.2043 36 29.8427C35.9998 28.5781 35.619 27.3646 34.8991 26.3334C34.6918 26.0365 34.4576 25.7569 34.203 25.5023C33.2287 24.528 31.9914 23.9232 30.6249 23.7533C29.8043 23.6513 28.9616 23.7164 28.1675 23.9415L23.469 19.243L19.243 23.4691L23.9415 28.1676Z" fill="currentColor"/><path d="M35.6894 2.69549L33.3045 0.310628C32.9523 -0.0416373 32.4127 -0.10084 31.9925 0.166628L27.0701 3.29898C26.8289 3.45254 26.6583 3.70138 26.6022 3.98193L26.1805 6.0906L13.2908 18.9803L17.0197 22.7092L29.9093 9.81948L32.0181 9.39775C32.2986 9.34164 32.5474 9.17106 32.701 8.92975L35.8332 4.00759C36.1008 3.58733 36.0417 3.04775 35.6894 2.69549Z" fill="currentColor"/><path d="M17.6412 26.3138L9.68626 18.3588C9.27437 17.947 8.60661 17.947 8.19472 18.3588C7.78283 18.7707 7.78283 19.4385 8.19472 19.8504L8.44334 20.099L1.54217 27.0002C-0.513976 29.0563 -0.513976 32.4018 1.54217 34.4579C3.59832 36.5141 6.94379 36.5141 8.99994 34.4579L15.9011 27.5568L16.1497 27.8054C16.5616 28.2173 17.2294 28.2173 17.6413 27.8054C18.053 27.3935 18.053 26.7257 17.6412 26.3138ZM10.6104 26.8813L5.24335 32.2483C4.83146 32.6602 4.1637 32.6602 3.75181 32.2483C3.33992 31.8364 3.33992 31.1687 3.75181 30.7568L9.11884 25.3897C9.53073 24.9779 10.1985 24.9779 10.6104 25.3897C11.0222 25.8016 11.0222 26.4694 10.6104 26.8813Z" fill="currentColor"/></symbol><symbol id="sw-health" viewBox="0 0 36 36"><path d="M17.9898 4.74549C10.1429 -2.11775 0.165634 3.91249 0.00202879 12.0875C-0.0396633 14.1709 0.561744 16.2003 1.75886 18.0712H9.51824L10.8984 15.7709C11.2991 15.1031 12.2689 15.0816 12.6924 15.7474L15.6043 20.3232L19.849 11.3624C20.2191 10.5806 21.3223 10.5557 21.7306 11.3139L25.3691 18.0712H34.2207C40.7776 7.82326 27.8188 -3.85132 17.9898 4.74549Z" fill="currentColor"/><path d="M23.8107 19.6257L20.8623 14.1501L16.693 22.9519C16.3383 23.7007 15.295 23.7658 14.8502 23.0666L11.8291 18.3193L11.0197 19.6683C10.8291 19.986 10.4858 20.1803 10.1154 20.1803H3.42719C3.63684 20.3997 2.51945 19.2846 17.2459 33.9348C17.6572 34.344 18.3221 34.3441 18.7335 33.9348C33.2333 19.51 32.343 20.3993 32.5522 20.1803H24.7392C24.3512 20.1804 23.9946 19.9674 23.8107 19.6257Z" fill="currentColor"/></symbol><symbol id="sw-gov" viewBox="0 0 36 36"><path d="M33.165 10.1081L19.0688 2.52C18.405 2.16 17.6006 2.16 16.9369 2.52L2.83502 10.1081C2.46939 10.305 2.23877 10.6875 2.23877 11.1037V13.1681C2.23877 13.7925 2.74502 14.2987 3.36939 14.2987H32.6194C33.2438 14.2987 33.75 13.7925 33.75 13.1681V11.1037C33.75 10.6875 33.5194 10.305 33.1538 10.1081H33.165ZM18 11.3681C16.7456 11.3681 15.7275 10.35 15.7275 9.09562C15.7275 7.84125 16.7456 6.82312 18 6.82312C19.2544 6.82312 20.2725 7.84125 20.2725 9.09562C20.2725 10.35 19.2544 11.3681 18 11.3681Z" fill="currentColor"/><path d="M31.9781 30.0262H4.02188C3.04313 30.0262 2.25 30.8194 2.25 31.7981V33.1256C2.25 33.4687 2.52562 33.7444 2.86875 33.7444H33.1313C33.4744 33.7444 33.75 33.4687 33.75 33.1256V31.7981C33.75 30.8194 32.9569 30.0262 31.9781 30.0262Z" fill="currentColor"/><path d="M4.56189 15.4293V28.9012H7.97064V19.7718C7.97064 18.6074 8.91564 17.6624 10.08 17.6624C11.2444 17.6624 12.1894 18.6074 12.1894 19.7718V28.9012H15.8906V19.7718C15.8906 18.6074 16.8356 17.6624 18 17.6624C19.1644 17.6624 20.1094 18.6074 20.1094 19.7718V28.9012H23.8106V19.7718C23.8106 18.6074 24.7556 17.6624 25.92 17.6624C27.0844 17.6624 28.0294 18.6074 28.0294 19.7718V28.9012H31.4381V15.4293H4.56189Z" fill="currentColor"/></symbol><symbol id="sw-fin" viewBox="0 0 38 38"><path d="M35.2113 6.14685H2.78878C1.25103 6.14685 0 7.39788 0 8.93563V29.0645C0 30.6022 1.25103 31.8532 2.78878 31.8532H35.2112C36.749 31.8532 38 30.6022 38 29.0645V8.93563C38.0001 7.39788 36.749 6.14685 35.2113 6.14685ZM11.6892 22.8846H15.4562C15.9082 22.8846 16.2744 23.251 16.2744 23.7029C16.2744 24.1548 15.9081 24.5211 15.4562 24.5211H11.6892C11.2372 24.5211 10.8709 24.1548 10.8709 23.7029C10.8709 23.251 11.2373 22.8846 11.6892 22.8846ZM3.53876 14.677C3.53876 14.225 3.9051 13.8587 4.35702 13.8587H9.25903C9.71102 13.8587 10.0773 14.2251 10.0773 14.677V18.2212C10.0773 18.6731 9.71095 19.0394 9.25903 19.0394H4.35702C3.90503 19.0394 3.53876 18.6731 3.53876 18.2212V14.677ZM4.35702 22.8846H8.124C8.57599 22.8846 8.94226 23.251 8.94226 23.7029C8.94226 24.1548 8.57592 24.5211 8.124 24.5211H4.35702C3.90503 24.5211 3.53876 24.1548 3.53876 23.7029C3.53876 23.251 3.90518 22.8846 4.35702 22.8846ZM17.8051 28.1599H4.35702C3.90503 28.1599 3.53876 27.7935 3.53876 27.3416C3.53876 26.8897 3.9051 26.5233 4.35702 26.5233H17.8051C18.2571 26.5233 18.6234 26.8897 18.6234 27.3416C18.6234 27.7935 18.2571 28.1599 17.8051 28.1599ZM22.7883 24.5211H19.0213C18.5693 24.5211 18.2031 24.1548 18.2031 23.7029C18.2031 23.251 18.5694 22.8846 19.0213 22.8846H22.7883C23.2403 22.8846 23.6066 23.251 23.6066 23.7029C23.6066 24.1548 23.2403 24.5211 22.7883 24.5211ZM30.1205 24.5211H26.3535C25.9015 24.5211 25.5352 24.1548 25.5352 23.7029C25.5352 23.251 25.9016 22.8846 26.3535 22.8846H30.1205C30.5725 22.8846 30.9387 23.251 30.9387 23.7029C30.9387 24.1548 30.5723 24.5211 30.1205 24.5211ZM33.6431 12.5677H24.7584C24.3064 12.5677 23.9401 12.2014 23.9401 11.7495C23.9401 11.2976 24.3065 10.9312 24.7584 10.9312H33.6431C34.0951 10.9312 34.4613 11.2976 34.4613 11.7495C34.4613 12.2014 34.0949 12.5677 33.6431 12.5677Z" fill="currentColor"/></symbol></defs></svg>
+    <div class="switch">
+      <a class="sw sw--cyber on" aria-current="page" href="#top"><span class="chip"><svg aria-hidden="true"><use href="#sw-shield"/></svg></span>Cybersecurity</a>
+      <a class="sw sw--field" href="https://claude.ai/artifact/RDVKtamZ2bLHUxmN8srbVg"><span class="chip"><svg aria-hidden="true"><use href="#sw-tools"/></svg></span>Field operations</a>
+      <a class="sw sw--health" href="https://claude.ai/artifact/MDgKPvbNe3DmniLfr1K5YV"><span class="chip"><svg aria-hidden="true"><use href="#sw-health"/></svg></span>Public health</a>
+      <a class="sw sw--fin" href="https://claude.ai/artifact/Xs72j4zhKjkY12fYZUa3dE"><span class="chip"><svg aria-hidden="true"><use href="#sw-fin"/></svg></span>Fintech</a>
+    </div>
+  </section>
+</main>
+
+<script>
+/* Annotated screens: dots sit on the image at x/y (% of the image),
+   bubbles sit in the side column at the same height; a dashed line joins them.
+   On phones the column hides and a numbered legend shows under the image. */
+const SCREENS = {
+  e1: { src:'images/edr-processes.png', w:1440, h:1934, alt:'EDR Processes tab: processes grouped with device counts, and a detail panel for Powershell.exe with known paths, aliases, open tickets and an open Actions menu', notes:[
+    { x:40.6, y:16.4, by:12, i:"No digging through raw events.", t:'Grouped by process', d:'One row per program, with how many devices run it.' },
+    { x:93.3, y:21.2, by:27, i:"From question to action in one place.", t:'Context and action, together', d:'Open tickets and response actions sit on the process itself.' } ]},
+  e2: { src:'images/edr-allowlist.png', w:1440, h:1024, alt:'Add to allowlist dialog open over the Allow/Block list, explaining that allowed processes will not generate tickets or telemetry, with an error that a system process hash cannot be allowed', notes:[
+    { x:79.8, y:37.2, by:30, i:"Decide knowing what changes.", t:'The consequence, in words', d:'Allowed means no more tickets and no data in Telemetry or Processes.' },
+    { x:69.6, y:54.2, by:66, i:"Safe by default, never silent.", t:'A guardrail with a reason', d:'Risky system processes are refused, and the message says why.' } ]},
+  e3: { src:'images/edr-telemetry-search.png', w:1440, h:1934, alt:'Telemetry search with two chips, Username equals Ira and Event ID equals 4624, the field menu open on Registry key values, and one result row expanded into labeled fields and process details', notes:[
+    { x:69, y:30.7, by:24, i:"Analyst-level search, IT-level effort.", t:'Guided query, no syntax', d:'Pick a field from the menu, even deep forensic values, and each condition becomes a chip.' },
+    { x:69.4, y:49.6, by:50, i:"Read evidence at a glance.", t:'Raw record, organized', d:'The expanded row splits a forensic event into labeled fields and process details.' } ]},
+  1: { src:'images/screen-1.png', w:1440, h:1066, alt:'Actionboard dashboard with open tickets, the Security Gaps card showing 3 that need attention, and the Workspace Health Score at 79', notes:[
+    { x:77.5, y:35.4, i:"Today's priority, at a glance.", t:'Gaps above the fold', d:'3 gaps need attention, next to the health score. Detail waits one level down.' },
+    { x:98.2, y:5.6, by:14, i:"Help without leaving the task.", t:'AI one click away', d:'Coro AI lives in the header, available from every screen.' } ]},
+  2: { src:'images/screen-2.png', w:1440, h:1066, alt:'Coro AI panel with a summary of a credential-theft attack chain and the top-priority gap', notes:[
+    { x:98.4, y:25, i:"Real and urgent, in one read.", t:'Plain-language verdict', d:"One paragraph names what's really happening: an active attack across 3 devices." },
+    { x:81, y:44.5, by:58, i:"One clear next step.", t:"Direct, don't act", d:'The agent points to the one gap to handle first. Actions wait inside its ticket.' } ]},
+  3: { src:'images/screen-3.png', w:1440, h:1896, alt:'Ticket Log with the selected ticket open: Coro AI analysis and three recommended actions; Eradicate and Recover are selected, Contain is not', notes:[
+    { x:93.6, y:33.2, by:24, i:"The AI recommends. Jordan decides.", t:'Overriding the AI', d:'No lateral movement or C2 in the evidence, so Jordan leaves Contain unchecked.' },
+    { x:93.6, y:38.9, by:44, i:"Trade-offs weighed before choosing.", t:'Consequences up front', d:'Each action says what it fixes and what it costs users, before selection.' } ]},
+  4: { src:'images/screen-4.png', w:1440, h:1896, alt:'Confirmation pop-up over the Ticket Log listing the two selected actions with Cancel and Apply Actions buttons', notes:[
+    { x:65.3, y:23, i:"Control until the last click.", t:'Exactly what runs', d:'The pop-up lists only the 2 selected actions. Nothing runs without approval.' } ]},
+  5: { src:'images/screen-5.png', w:1440, h:1896, alt:"Resolved ticket in the Ticket Log: applied actions locked as history, Contain marked as skipped with Jordan's reason, Reopen button at the top", notes:[
+    { x:97.2, y:12.9, by:12, i:"Health Score restored, nothing locked in.", t:'Closed, not final', d:'Reopen stays one click away if the threat comes back.' },
+    { x:93.6, y:35.8, by:34, i:"Every choice on record.", t:'Skipped, with a reason', d:"Applied actions lock as history; the skipped one keeps Jordan's reason." } ]}
+};
+
+function buildScreen(el){
+  const s = SCREENS[el.dataset.screen]; if(!s) return;
+  const img = `<img src="${s.src}" width="${s.w}" height="${s.h}" alt="${s.alt.replace(/"/g,'&quot;')}">`;
+  const dots = s.notes.map((n,i)=>`<span class="ann__dot" style="left:${n.x}%;top:${n.y}%" aria-hidden="true">${i+1}</span>`).join('');
+  const bub = (n,i)=>`<div class="bubble" data-i="${i}" style="top:${n.by ?? n.y}%"><div class="bubble__t"><span class="bubble__n">${i+1}</span>${n.t}</div><p class="bubble__d">${n.d}</p>${n.i?`<p class="bubble__i">${n.i}</p>`:''}</div>`;
+  const left = s.notes.map((n,i)=>n.side==='left'?bub(n,i):'').join(''), right = s.notes.map((n,i)=>n.side!=='left'?bub(n,i):'').join('');
+  if (left) el.classList.add('ann--L'); if (left && !right) el.classList.add('ann--noR');
+  const legend = s.notes.map((n,i)=>`<li><span class="bubble__n">${i+1}</span><div><b>${n.t}</b><span class="d">${n.d}</span>${n.i?`<span class="i">${n.i}</span>`:''}</div></li>`).join('');
+  el.innerHTML = `<div class="ann__img">${img}${dots}</div>${left?`<div class="ann__col ann__col--left">${left}</div>`:''}${right?`<div class="ann__col ann__col--right">${right}</div>`:''}
+    <ol class="legend">${legend}</ol><svg class="ann__lines" aria-hidden="true"></svg>`;
+}
+function spreadBubbles(el){
+  el.querySelectorAll('.ann__col').forEach(col=>{
+    if (getComputedStyle(col).display==='none') return;
+    const bs=[...col.querySelectorAll('.bubble')];
+    bs.forEach(b=>{ b.style.marginTop='0px'; });
+    bs.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+    let prevBottom=-Infinity;
+    bs.forEach(b=>{
+      const r=b.getBoundingClientRect();
+      const shift=Math.max(0, prevBottom+12-r.top);
+      if (shift) b.style.marginTop=shift+'px';
+      prevBottom=r.bottom+shift;
+    });
+  });
+}
+function drawLines(el){
+  spreadBubbles(el);
+  const svg = el.querySelector('.ann__lines'); if(!svg || getComputedStyle(svg).display==='none') return;
+  const box = el.getBoundingClientRect();
+  const dots = el.querySelectorAll('.ann__dot');
+  let out = '';
+  dots.forEach((d,i)=>{
+    const bEl = el.querySelector(`.bubble[data-i="${i}"]`); if(!bEl) return;
+    const a = d.getBoundingClientRect(), b = bEl.getBoundingClientRect();
+    const x1 = a.left + a.width/2 - box.left, y1 = a.top + a.height/2 - box.top;
+    const isLeft = b.right <= a.left;
+    const x2 = (isLeft ? b.right : b.left) - box.left, y2 = b.top + b.height/2 - box.top;
+    const mx = isLeft ? Math.min(x1 - 14, x2 + 20) : Math.max(x1 + 14, x2 - 20);
+    out += `<line x1="${x1}" y1="${y1}" x2="${mx}" y2="${y1}"/><line x1="${mx}" y1="${y1}" x2="${mx}" y2="${y2}"/><line x1="${mx}" y1="${y2}" x2="${x2}" y2="${y2}"/>`;
+  });
+  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+  svg.innerHTML = out;
+}
+
+/* No orphans: bind the last two words of every text block with a non-breaking space */
+function noOrphans(root){
+  root.querySelectorAll('p, li, h1, h2, h3, .bubble__t, .bubble__d, .bubble__i, .legend b, .legend span.d, .legend span.i').forEach(el=>{
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let last=null, n;
+    while ((n = w.nextNode())) if (n.nodeValue.trim()) last = n;
+    if (last) last.nodeValue = last.nodeValue.replace(/\s+(\S+)\s*$/, '\u00A0$1');
+  });
+}
+const anns = [...document.querySelectorAll('.ann')];
+anns.forEach(buildScreen);
+noOrphans(document);
+const redraw = () => anns.forEach(drawLines);
+anns.forEach(el => el.querySelector('img').addEventListener('load', redraw));
+if ('ResizeObserver' in window) { const ro = new ResizeObserver(redraw); anns.forEach(el => ro.observe(el)); }
+window.addEventListener('resize', redraw);
+redraw();
+</script>
+</body>
+</html>
