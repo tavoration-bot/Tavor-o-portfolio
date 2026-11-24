@@ -39,19 +39,15 @@
 /* Sticky header: it is the panel itself (Figma 28:1503): full width, 82px, translucent dark, deep rounded bottom */
 .site-header{position:sticky;top:0;z-index:30;background:rgba(42,42,47,.72);border:1px solid #2a2a2f;border-radius:0 0 345px 345px}
 .site-nav__btn{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;color:inherit;cursor:pointer}
-/* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: white, and on hover they grow and turn heavier; they return when the pointer leaves.
-   ContacTavor looks the same while its bubble is open. No color change.
-   The heavier text is a copy (data-text) laid over the tab, so the tab keeps its normal width and the other tabs never move.
+/* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: white, and on hover they grow 30%, then return when the pointer leaves.
+   ContacTavor stays grown while its bubble is open. No color change, no weight change.
    Hover only applies where there is a real pointer, so a tap on a phone never leaves a tab stuck in the hover state. */
-.site-header{--sh-grow:1.4;--sh-hover-weight:600}
-.site-nav>a,.site-nav__btn{position:relative;display:inline-block;transform-origin:center;transition:transform .18s ease,color .18s ease}
-.site-nav>a::after,.site-nav__btn::after{content:attr(data-text);content:attr(data-text) / "";position:absolute;left:50%;top:0;transform:translateX(-50%);white-space:nowrap;font-weight:var(--sh-hover-weight);color:#fff;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.site-header{--sh-grow:1.3}
+.site-nav>a,.site-nav__btn{display:inline-block;transform-origin:center;transition:transform .18s ease}
 @media (hover:hover) and (pointer:fine){
-  .site-nav>a:hover,.site-nav__btn:hover{transform:scale(var(--sh-grow));color:transparent}
-  .site-nav>a:hover::after,.site-nav__btn:hover::after{opacity:1}
+  .site-nav>a:hover,.site-nav__btn:hover{transform:scale(var(--sh-grow))}
 }
-.site-nav__btn[aria-expanded="true"]{transform:scale(var(--sh-grow));color:transparent}
-.site-nav__btn[aria-expanded="true"]::after{opacity:1}
+.site-nav__btn[aria-expanded="true"]{transform:scale(var(--sh-grow))}
 .site-nav>a:focus-visible,.site-nav__btn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
 .site-bubble{
   --ax:300px;
@@ -89,9 +85,39 @@
   .site-logo{width:220px;height:27px}
   .nlin{transform:scale(.7166)}
   .site-nav{gap:24px}.site-nav a{font-size:17px}
-  .site-header{--sh-grow:1.2} /* the tabs are closer together on a phone, so they grow less */
 }
 @media (prefers-reduced-motion:reduce){
-  .site-nav>a,.site-nav__btn,.site-nav>a::after,.site-nav__btn::after{transition:none}
+  .site-nav>a,.site-nav__btn{transition:none}
   .site-logo.anim *{animation:none!important}
+}
+
+/* Case-study variant (every page except Home and About): no Work tab, because "All work" is in the page's breadcrumb.
+   The header and the contact bubble take the page's own colors (--sh-bg-rgb and --sh-fg are set from the page by header.js):
+   dark pages get dark, light pages get light. Desktop: a slim flat bar, blurred behind, that tucks away on scroll down and
+   returns on scroll up. Phone: the normal header shape, minus Work, scrolls away with the page. */
+.site-header--case{background:rgba(var(--sh-bg-rgb,15,15,26),.9);color:var(--sh-fg,#fff);border-color:color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent)}
+.site-header--case .site-logo .nlt{color:var(--sh-fg,#fff)}
+.site-header--case .site-logo svg path{fill:var(--sh-fg,#fff)}
+.site-header--case .site-nav>a:focus-visible,.site-header--case .site-nav__btn:focus-visible{outline-color:var(--sh-fg,#fff)}
+/* the contact bubble, in the page's colors */
+.site-header--case .site-bubble__bg{background:rgb(var(--sh-bg-rgb,15,15,26));opacity:.95}
+.site-header--case .site-bubble__tail{fill:rgb(var(--sh-bg-rgb,15,15,26))}
+.site-header--case .site-bubble{box-shadow:0 10px 32px color-mix(in srgb,var(--sh-fg,#fff) 16%,transparent)}
+.site-header--case .site-bubble__ring{border-color:var(--sh-fg,#fff)}
+.site-header--case .site-bubble__line{stroke:var(--sh-fg,#fff)}
+.site-header--case .site-bubble h2{color:var(--sh-fg,#fff)}
+.site-header--case .site-bubble a{color:var(--sh-fg,#fff);text-decoration-color:color-mix(in srgb,var(--sh-fg,#fff) 75%,transparent)}
+.site-header--case .site-bubble a:hover{color:var(--sh-fg,#fff);text-decoration-color:var(--sh-fg,#fff)}
+@media (min-width:721px){
+  .site-header--case{height:60px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:0;border-bottom:1px solid color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent);border-radius:0;transition:transform .25s ease}
+  .site-header--case.is-hidden{transform:translateY(-100%)}
+  .site-header--case .site-logo{width:240px;height:30px}
+  .site-header--case .nlin{transform:scale(.78)}
+  .site-header--case .site-nav{gap:32px}
+}
+@media (max-width:720px){
+  .site-header--case{position:relative}
+}
+@media (prefers-reduced-motion:reduce){
+  .site-header--case{transition:none}
 }
