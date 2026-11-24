@@ -115,10 +115,10 @@
   .site-header--case .site-nav{gap:32px}
 }
 
-/* Home and About only (Figma 28:1503): a straight bar, semi-transparent dark, with one thin white line under it
-   (Figma line 118:83: 1px, white, inset 59px on a 1440 screen). Case-study pages keep their own header above. */
-.site-header:not(.site-header--case){border:0;border-radius:0}
-.site-header:not(.site-header--case)::after{content:"";position:absolute;left:max(0px,calc(var(--sh-gutter) - 41px));right:max(0px,calc(var(--sh-gutter) - 41px));bottom:-4px;height:1px;background:#fff;pointer-events:none}
+/* Home and About only (Figma 28:1503): no bar, no background, just one thin white line under the header
+   (Figma line 118:83: white, inset 59px on a 1440 screen, drawn 0.8px thick). Case-study pages keep their own header above. */
+.site-header:not(.site-header--case){background:transparent;border:0;border-radius:0}
+.site-header:not(.site-header--case)::after{content:"";position:absolute;left:max(0px,calc(var(--sh-gutter) - 41px));right:max(0px,calc(var(--sh-gutter) - 41px));bottom:-4px;height:1px;background:#fff;transform:scaleY(.8);pointer-events:none}
 @media (max-width:720px){
   .site-header:not(.site-header--case){padding-top:23px;padding-bottom:23px} /* keeps the phone header the same height as before the old border was removed */
   .site-header:not(.site-header--case)::after{bottom:0}
