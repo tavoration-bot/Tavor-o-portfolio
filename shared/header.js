@@ -33,24 +33,6 @@
     header.style.setProperty('--sh-fg',cs.color);
   }
 
-  /* Case-study pages on desktop: the slim bar tucks away while you scroll down and returns when you scroll up.
-     On a phone it simply scrolls away with the page (the bar is not fixed there). */
-  function initAutoHide(header){
-    var mq=window.matchMedia('(min-width:721px)'),last=Math.max(0,window.scrollY),ticking=false;
-    function update(){
-      ticking=false;
-      var y=Math.max(0,window.scrollY);
-      var open=header.querySelector('.site-bubble.is-open');
-      if(!mq.matches||y<=80||open){header.classList.remove('is-hidden');last=y;return}
-      if(Math.abs(y-last)<6)return;
-      header.classList.toggle('is-hidden',y>last);
-      last=y;
-    }
-    window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});
-    header.addEventListener('focusin',function(){header.classList.remove('is-hidden')});
-    if(mq.addEventListener)mq.addEventListener('change',update);
-  }
-
   function initBubble(header){
     var btn=header.querySelector('#site-contact-btn'),box=header.querySelector('#site-contact-bubble');
     if(!btn||!box)return;
@@ -101,7 +83,7 @@
       this.replaceWith(header);
       initBubble(header);
       initLogo(header,current==='home');
-      if(header.classList.contains('site-header--case')){themeFromPage(header);initAutoHide(header)}
+      if(header.classList.contains('site-header--case')){themeFromPage(header)}
     }
   });
 })();

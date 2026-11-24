@@ -93,9 +93,9 @@
 
 /* Case-study variant (every page except Home and About): no Work tab, because "All work" is in the page's breadcrumb.
    The header and the contact bubble take the page's own colors (--sh-bg-rgb and --sh-fg are set from the page by header.js):
-   dark pages get dark, light pages get light. Desktop: a slim flat bar, blurred behind, that tucks away on scroll down and
-   returns on scroll up. Phone: the normal header shape, minus Work, scrolls away with the page. */
-.site-header--case{background:rgba(var(--sh-bg-rgb,15,15,26),.9);color:var(--sh-fg,#fff);border-color:color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent)}
+   dark pages get dark, light pages get light. Desktop: a slim flat bar, blurred behind. Phone: the normal header shape,
+   minus Work. On both it stays in place (sticky) while the page scrolls. */
+.site-header--case{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(var(--sh-bg-rgb,15,15,26),.9);color:var(--sh-fg,#fff);border-color:color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent)}
 .site-header--case .site-logo .nlt{color:var(--sh-fg,#fff)}
 .site-header--case .site-logo svg path{fill:var(--sh-fg,#fff)}
 .site-header--case .site-nav>a:focus-visible,.site-header--case .site-nav__btn:focus-visible{outline-color:var(--sh-fg,#fff)}
@@ -109,15 +109,17 @@
 .site-header--case .site-bubble a{color:var(--sh-fg,#fff);text-decoration-color:color-mix(in srgb,var(--sh-fg,#fff) 75%,transparent)}
 .site-header--case .site-bubble a:hover{color:var(--sh-fg,#fff);text-decoration-color:var(--sh-fg,#fff)}
 @media (min-width:721px){
-  .site-header--case{height:60px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:0;border-bottom:1px solid color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent);border-radius:0;transition:transform .25s ease}
-  .site-header--case.is-hidden{transform:translateY(-100%)}
+  .site-header--case{height:60px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:0;border-bottom:1px solid color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent);border-radius:0}
   .site-header--case .site-logo{width:240px;height:30px}
   .site-header--case .nlin{transform:scale(.78)}
   .site-header--case .site-nav{gap:32px}
 }
+
+/* Home and About only (Figma 28:1503): a straight bar, semi-transparent dark, with one thin white line under it
+   (Figma line 118:83: 1px, white, inset 59px on a 1440 screen). Case-study pages keep their own header above. */
+.site-header:not(.site-header--case){border:0;border-radius:0}
+.site-header:not(.site-header--case)::after{content:"";position:absolute;left:max(0px,calc(var(--sh-gutter) - 41px));right:max(0px,calc(var(--sh-gutter) - 41px));bottom:-4px;height:1px;background:#fff;pointer-events:none}
 @media (max-width:720px){
-  .site-header--case{position:relative}
-}
-@media (prefers-reduced-motion:reduce){
-  .site-header--case{transition:none}
+  .site-header:not(.site-header--case){padding-top:23px;padding-bottom:23px} /* keeps the phone header the same height as before the old border was removed */
+  .site-header:not(.site-header--case)::after{bottom:0}
 }
