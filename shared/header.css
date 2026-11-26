@@ -5,7 +5,12 @@
   --sh-gutter:100px;
   --sh-font-nav:"Instrument Sans","Manrope",system-ui,sans-serif;
   --sh-font-heading:"IBM Plex Sans",system-ui,sans-serif;
-  color:#fff;font-family:"Manrope",system-ui,sans-serif;font-size:16px;line-height:normal;text-align:left;-webkit-font-smoothing:auto;
+  /* the pill's glass and ink (text and logo color); Home/About at the top of the page */
+  --sh-ink:#dfdee0;
+  --sh-glass:rgba(255,255,255,.35);
+  --sh-glass-blur:22px;
+  --sh-pill-top:24px;
+  color:var(--sh-ink);font-family:"Manrope",system-ui,sans-serif;font-size:16px;line-height:normal;text-align:left;-webkit-font-smoothing:auto;
 }
 @media (max-width:1100px){.site-header{--sh-gutter:40px}}
 @media (max-width:720px){.site-header{--sh-gutter:20px}}
@@ -13,11 +18,14 @@
 .site-header :where(a){color:inherit}
 .site-header :where(button){font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .site-header :where(ul){list-style:none}
-.site-header{display:flex;align-items:center;justify-content:space-between;height:82px;padding:0 var(--sh-gutter)}
-.site-logo{position:relative;display:block;width:307px;height:38px;border-radius:4px;flex:none}
+/* Floating pill (Figma 137:1893): 52px tall, inset by --sh-gutter. Its margins add up to the old 82px (24+52+6),
+   so the page under it does not move. */
+.site-header{display:flex;align-items:center;justify-content:space-between;height:52px;margin:24px var(--sh-gutter) 6px;padding:0 70px;border-radius:129px}
+.site-logo{position:relative;display:block;width:272px;height:38px;margin-top:-2px;border-radius:4px;flex:none}
 .nlin{position:absolute;left:0;top:0;width:307px;height:38px;transform-origin:0 0}
 .nlin>*{position:absolute;left:0;top:0;display:block}
-.nlt{color:#fff;font-family:"Michroma",sans-serif;font-size:32px;line-height:normal;white-space:nowrap}
+.nlt{color:var(--sh-ink);font-family:"Michroma",sans-serif;font-size:32px;line-height:normal;white-space:nowrap}
+.site-logo svg path{fill:var(--sh-ink)}
 .nlini{width:307px;height:38px;opacity:0}
 .nlini .nlav{position:absolute;left:18px;top:-4.34px;width:89px;height:38px;opacity:1}
 .nlav .nlt,.nlli .nlt{position:absolute;left:0;top:23px;transform:translateY(-50%)}
@@ -35,11 +43,14 @@
 .site-nav{display:flex;gap:40px;align-items:center}
 .site-nav a{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;text-decoration:none}
 
+/* Sticky pill. The glass lives on ::before, not on the header itself, so the contact bubble can still blur on its own. */
+.site-header{position:sticky;top:var(--sh-pill-top);z-index:30}
+.site-header::before{content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;pointer-events:none;background:var(--sh-glass);-webkit-backdrop-filter:blur(var(--sh-glass-blur));backdrop-filter:blur(var(--sh-glass-blur));transition:background .2s ease,backdrop-filter .2s ease}
+/* Home and About: light grey glass at the top of the page, dark glass once scrolled so the light logo stays readable */
+.site-header--dark-scroll.is-scrolled{--sh-glass:rgba(34,34,40,.62)}
 /* Contact bubble: shape and color from the design (Figma 70:84); the tail points at the nav button */
-/* Sticky header: it is the panel itself (Figma 28:1503): full width, 82px, translucent dark, deep rounded bottom */
-.site-header{position:sticky;top:0;z-index:30;background:rgba(42,42,47,.72);border:1px solid #2a2a2f;border-radius:0 0 345px 345px}
 .site-nav__btn{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;color:inherit;cursor:pointer}
-/* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: white, and on hover they grow 30%, then return when the pointer leaves.
+/* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: on hover they grow 30%, then return when the pointer leaves.
    ContacTavor stays grown while its bubble is open. No color change, no weight change.
    Hover only applies where there is a real pointer, so a tap on a phone never leaves a tab stuck in the hover state. */
 .site-header{--sh-grow:1.3}
@@ -77,12 +88,10 @@
   .site-bubble a{font-size:16px;line-height:22px}
 }
 @media (prefers-reduced-motion:reduce){.site-bubble{transition:none}}
-/* header on small screens: logo centered, the three links centered under it */
-@media (max-width:720px){.site-header{height:auto;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:22px var(--sh-gutter);border-bottom-left-radius:44px;border-bottom-right-radius:44px}}
-/* small screens: logo and links scaled down */
+/* header on small screens (not designed in Figma): the same pill, logo centered with the three links centered under it */
 @media (max-width:720px){
-  .site-header{flex-wrap:wrap;gap:8px}
-  .site-logo{width:220px;height:27px}
+  .site-header{--sh-pill-top:12px;height:auto;margin:12px 12px 4px;padding:14px 20px 12px;border-radius:44px;flex-direction:column;justify-content:center;align-items:center;gap:6px}
+  .site-logo{width:195px;height:27px;margin-top:0}
   .nlin{transform:scale(.7166)}
   .site-nav{gap:24px}.site-nav a{font-size:17px}
 }
@@ -92,12 +101,11 @@
 }
 
 /* Case-study variant (every page except Home and About): no Work tab, because "All work" is in the page's breadcrumb.
-   The header and the contact bubble take the page's own colors (--sh-bg-rgb and --sh-fg are set from the page by header.js):
-   dark pages get dark, light pages get light. Desktop: a slim flat bar, blurred behind. Phone: the normal header shape,
-   minus Work. On both it stays in place (sticky) while the page scrolls. */
-.site-header--case{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(var(--sh-bg-rgb,15,15,26),.9);color:var(--sh-fg,#fff);border-color:color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent)}
-.site-header--case .site-logo .nlt{color:var(--sh-fg,#fff)}
-.site-header--case .site-logo svg path{fill:var(--sh-fg,#fff)}
+   The pill and the contact bubble take the page's own colors (--sh-bg-rgb and --sh-fg are set from the page by header.js).
+   No outline and no shadow on the pill. Light pages (site-header--light) get a slightly tinted glass, or the pill
+   would be the same color as the page and disappear. */
+.site-header--case{--sh-ink:var(--sh-fg,#fff);--sh-glass:color-mix(in srgb,var(--sh-fg,#fff) 35%,transparent);--sh-glass-blur:22px}
+.site-header--case.site-header--light{--sh-glass:color-mix(in srgb,color-mix(in srgb,var(--sh-fg,#000) 5%,rgb(var(--sh-bg-rgb,255,255,255))) 35%,transparent)}
 .site-header--case .site-nav>a:focus-visible,.site-header--case .site-nav__btn:focus-visible{outline-color:var(--sh-fg,#fff)}
 /* the contact bubble, in the page's colors */
 .site-header--case .site-bubble__bg{background:rgb(var(--sh-bg-rgb,15,15,26));opacity:.95}
@@ -108,23 +116,3 @@
 .site-header--case .site-bubble h2{color:var(--sh-fg,#fff)}
 .site-header--case .site-bubble a{color:var(--sh-fg,#fff);text-decoration-color:color-mix(in srgb,var(--sh-fg,#fff) 75%,transparent)}
 .site-header--case .site-bubble a:hover{color:var(--sh-fg,#fff);text-decoration-color:var(--sh-fg,#fff)}
-@media (min-width:721px){
-  .site-header--case{height:60px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:0;border-bottom:1px solid color-mix(in srgb,var(--sh-fg,#fff) 14%,transparent);border-radius:0}
-  .site-header--case .site-logo{width:240px;height:30px}
-  .site-header--case .nlin{transform:scale(.78)}
-  .site-header--case .site-nav{gap:32px}
-}
-
-/* Home and About only (Figma 28:1503): no bar, no background, just one thin white line under the header
-   (Figma line 118:83: white, inset 59px on a 1440 screen, drawn 0.8px thick). Case-study pages keep their own header above. */
-.site-header:not(.site-header--case){background:transparent;border:0;border-radius:0}
-.site-header:not(.site-header--case)::after{content:"";position:absolute;left:max(0px,calc(var(--sh-gutter) - 41px));right:max(0px,calc(var(--sh-gutter) - 41px));bottom:-4px;height:1px;background:#fff;transform:scaleY(.8);pointer-events:none}
-@media (max-width:720px){
-  .site-header:not(.site-header--case){padding-top:23px;padding-bottom:23px} /* keeps the phone header the same height as before the old border was removed */
-  .site-header:not(.site-header--case)::after{bottom:0}
-}
-
-/* Home and About: once the page is scrolled, a soft blur (no color) keeps text passing behind the logo and links from
-   competing with them. It sits on its own layer so the contact bubble is unaffected. At the very top it does not exist. */
-.site-header:not(.site-header--case).is-scrolled::before{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;bottom:-4px;pointer-events:none;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
-@media (max-width:720px){.site-header:not(.site-header--case).is-scrolled::before{bottom:0}}
