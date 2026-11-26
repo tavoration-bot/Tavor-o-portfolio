@@ -38,11 +38,11 @@
     --shadow:#2D2A75;
     --gutter:100px;
   }
-  /* Each project card takes the colors of its own app. Set from the selected tab. */
-  .work[data-theme="coro"]{--stop-a:91.041%;--stop-b:131.52%}
-  .work[data-theme="well"]{--card-a:#0946A5;--card-b:#7091FF;--tag:#1B4494;--tag-bg:rgba(33,55,114,.45);--shot-bg:rgba(169,187,245,.4)}
-  .work[data-theme="jsk"]{--card-a:#1B4A4D;--card-b:#1F3C49;--tag:#29585B;--tag-bg:rgba(15,47,52,.45);--tag-text:#E6F6F1;--desc:rgba(230,246,241,.85);--shadow:rgba(15,47,52,.55)}
-  .work[data-theme="bit"]{--card-a:#2EB3B8;--card-b:#188087;--tag:#256476;--tag-bg:rgba(14,40,62,.45);--tag-text:#E6F6F1;--desc:rgba(230,246,241,.85);--shadow:rgba(14,40,62,.45)}
+  /* Each project card takes the colors of its own app. Set on each tab and panel. */
+  .work [data-theme="coro"]{--stop-a:91.041%;--stop-b:131.52%}
+  .work [data-theme="well"]{--card-a:#0946A5;--card-b:#7091FF;--tag:#1B4494;--tag-bg:rgba(33,55,114,.45);--shot-bg:rgba(169,187,245,.4)}
+  .work [data-theme="jsk"]{--card-a:#1B4A4D;--card-b:#1F3C49;--tag:#29585B;--tag-bg:rgba(15,47,52,.45);--tag-text:#E6F6F1;--desc:rgba(230,246,241,.85);--shadow:rgba(15,47,52,.55)}
+  .work [data-theme="bit"]{--card-a:#2EB3B8;--card-b:#188087;--tag:#256476;--tag-bg:rgba(14,40,62,.45);--tag-text:#E6F6F1;--desc:rgba(230,246,241,.85);--shadow:rgba(14,40,62,.45)}
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
   body{
@@ -74,8 +74,8 @@
   .hero__line{display:block;text-wrap:balance}
 
   /* Tabs + card */
-  .work{position:relative;width:min(920px,100%);display:flex;flex-direction:column;align-items:center;gap:20px}
-  .tabs{position:relative;display:flex;gap:8px}
+  .work{position:relative;width:min(920px,100%);display:flex;flex-direction:column;align-items:center;gap:36px}
+  .tabs{position:relative;z-index:2;display:flex;gap:8px}
   .tab{
     position:relative;width:64px;height:64px;display:grid;place-items:center;
     border-radius:18px;background:rgba(255,255,255,.7);opacity:.8;
@@ -83,18 +83,18 @@
   }
   .tab svg{width:36px;height:36px;display:block}
   .tab:hover{opacity:1;transform:translateY(-2px)}
-  .tab[aria-selected="true"]{
+  .tab[aria-selected="true"],.tab.is-leaving{
     opacity:1;transform:none;border-radius:16px;
     background:linear-gradient(to right,var(--card-a) var(--stop-a,0%),var(--card-b) var(--stop-b,100%));
-    box-shadow:inset 0 0 0 4px var(--white);
+    box-shadow:inset 0 0 0 2px var(--white);
     color:var(--white)!important;
   }
   .tab:focus-visible{outline:3px solid var(--white);outline-offset:3px}
   .tab--cyber{color:#B4748D}.tab--field{color:#B37895}.tab--health{color:#B4748D}.tab--gov{color:#C57790}.tab--fin{color:#D2899C}
   .tab--cyber svg{width:37px;height:37px}.tab--fin svg{width:38px;height:38px}
   /* Cut-out icons: the tab is a translucent plate with the icon shape punched out, so whatever is behind the tab shows through. */
-  .tab:not([aria-selected="true"]){background:none}
-  .tab:not([aria-selected="true"])::before{
+  .tab:not([aria-selected="true"]):not(.is-leaving){background:none}
+  .tab:not([aria-selected="true"]):not(.is-leaving)::before{
     content:"";position:absolute;inset:0;border-radius:18px;background:rgba(255,255,255,.7);
     -webkit-mask-image:var(--ic),linear-gradient(#000,#000);mask-image:var(--ic),linear-gradient(#000,#000);
     -webkit-mask-size:var(--ics,36px) var(--ics,36px),100% 100%;mask-size:var(--ics,36px) var(--ics,36px),100% 100%;
@@ -102,22 +102,27 @@
     -webkit-mask-repeat:no-repeat,no-repeat;mask-repeat:no-repeat,no-repeat;
     -webkit-mask-composite:xor;mask-composite:exclude;
   }
-  .tab:not([aria-selected="true"]) svg{opacity:0}
+  .tab:not([aria-selected="true"]):not(.is-leaving) svg{opacity:0}
   .tab--cyber{--ics:37px}.tab--fin{--ics:38px}
 
-  .connector{
-    position:absolute;top:100%;left:16px;width:32px;height:22px;z-index:2;pointer-events:none;
-    color:var(--white);transition:left .35s cubic-bezier(.4,0,.2,1);
-  }
-  .connector svg{display:block;width:100%;height:100%}
-
   .card{
-    position:relative;width:100%;height:378px;border-radius:32px;border:2px solid var(--white);
+    position:relative;width:100%;height:389px;border-radius:32px;border:2px solid var(--white);
     background:linear-gradient(to right,var(--card-a) var(--stop-a,0%),var(--card-b) var(--stop-b,100%));
   }
-  .panel{position:absolute;inset:0;animation:enter .35s ease both}
+  .panel{position:absolute;inset:0}
   .panel[hidden]{display:none}
-  @keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* TAB ANIMATION: styles (start) */
+  .shape{position:absolute;z-index:0;display:none;pointer-events:none}
+  .shape .bg{position:absolute;inset:0}
+  .frame{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;display:none;overflow:visible;pointer-events:none}
+  .work.is-live .shape,.work.is-live .frame{display:block}
+  .work.is-live .card{z-index:1;border-color:transparent;background:none;touch-action:pan-y}
+  .bg--coro{background:linear-gradient(to right,#262260 91.041%,#614DA6 131.52%)}
+  .bg--well{background:linear-gradient(to right,#0946A5,#7091FF)}
+  .bg--jsk{background:url("img/jsk-card-bg-dark.webp") center/cover no-repeat,linear-gradient(to bottom,#1B4A4D 40.87%,#1F3C49 107.39%)}
+  .bg--bit{background:radial-gradient(ellipse 32.4% 53.1% at 86% 100.9%,rgba(46,179,184,.18) 99.6%,rgba(46,179,184,0) 100%),radial-gradient(ellipse 23.4% 44.2% at 6.8% 109.7%,rgba(46,179,184,.12) 99.6%,rgba(46,179,184,0) 100%),linear-gradient(to bottom,#2EB3B8 0%,#188087 107.39%)}
+  /* TAB ANIMATION: styles (end) */
 
   .copy{position:absolute;left:48px;top:50%;transform:translateY(-50%);width:340px;display:flex;flex-direction:column;gap:16px;align-items:flex-start}
   .row{display:flex;align-items:center;gap:10px}
@@ -131,22 +136,18 @@
   .copy a:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:2px}
 
   .shot{
-    position:absolute;left:375px;top:26.5px;width:518px;height:321px;overflow:hidden;
+    position:absolute;left:375px;top:32px;width:518px;height:321px;overflow:hidden;
     border-radius:12px;background:var(--shot-bg);
     box-shadow:0 0 0 1px var(--white),0 0 18px var(--shadow);
   }
   .shot img.cover{position:absolute;left:0;top:0;width:533px;height:395px;display:block;max-width:none}
   .shot--soft{background:#EFEEF1}
-  /* Just say Know card: teal gradient + molecule background from the Figma design */
-  .work[data-theme="jsk"] .card{background:url("img/jsk-card-bg-dark.webp") center/cover no-repeat border-box,linear-gradient(to bottom,#1B4A4D 40.87%,#1F3C49 107.39%);background-origin:border-box}
-  .shot--jsk{left:476px;top:36px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
+  .shot--jsk{left:476px;top:41px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
   .shot--jsk img{position:absolute;display:block;height:auto;border-radius:15px}
   .shot--well img{position:absolute;display:block;height:auto}
-  /* Bit card: teal gradient with two soft ellipses in the corners, from the Figma design */
-  .work[data-theme="bit"] .card{background:radial-gradient(ellipse 32.4% 53.1% at 86% 100.9%,rgba(46,179,184,.18) 99.6%,rgba(46,179,184,0) 100%),radial-gradient(ellipse 23.4% 44.2% at 6.8% 109.7%,rgba(46,179,184,.12) 99.6%,rgba(46,179,184,0) 100%),linear-gradient(to bottom,#2EB3B8 0%,#188087 107.39%);overflow:hidden}
-  .work[data-theme="bit"] .row__icon{color:#E6F6F1}
+  .work .panel[data-theme="bit"] .row__icon{color:#E6F6F1}
   .copy .bitmark{display:block;width:110px;height:60.5px;margin:-4px 0 -2px}
-  .shot--bit{left:476px;top:36px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
+  .shot--bit{left:476px;top:41px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
   .shot--bit img{position:absolute;display:block;height:auto}
   .soon{position:absolute;inset:8px;border:1.5px dashed #CFCDD2;border-radius:10px;display:grid;place-items:center;font-size:15px;color:#76757D;background:#EFEEF1}
 
@@ -171,9 +172,9 @@
     .hero__lede{font-size:30px;line-height:42px}
   }
   @media (max-width:980px){
-    .card{height:auto}
-    .panel{position:relative;inset:auto;display:flex;flex-direction:column;align-items:center;gap:28px;padding:36px 28px 32px}
-    .panel[hidden]{display:none}
+    .card{height:auto;display:grid;grid-template-columns:minmax(0,1fr)}
+    .panel{position:relative;inset:auto;grid-area:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:36px 28px 32px}
+    .panel[hidden]{display:flex;visibility:hidden}
     .copy{position:static;transform:none;width:100%}
     .shot{position:relative;left:auto;top:auto;width:100%;max-width:518px;aspect-ratio:518/321;height:auto}
     .shot--jsk,.shot--bit{aspect-ratio:411/306;max-width:411px}
@@ -187,7 +188,6 @@
     .tab{width:54px;height:54px;border-radius:15px}
     .tab svg,.tab--cyber svg,.tab--fin svg{width:30px;height:30px}
     .tabs{gap:6px}
-    .connector{left:11px;width:32px}
     .card{border-radius:24px}
     .copy h2{font-size:36px;line-height:44px}
     .contact{flex-direction:column;align-items:flex-start;border-radius:32px;padding:20px 24px;gap:8px}
@@ -195,7 +195,7 @@
     .contact-wrap{padding:16px var(--gutter) 32px}
   }
   @media (prefers-reduced-motion:reduce){
-    .panel{animation:none}.connector,.tab{transition:none}
+    .tab{transition:none}
   }
 </style>
 </head>
@@ -217,20 +217,19 @@
   <p class="hero__name">Hi, I'm Tavor</p>
   <h1 class="hero__lede"><span class="hero__line">A senior product designer working inside hard-to-crack domains like cybersecurity and high-stakes systems.</span> <span class="hero__line">Complexity is where I do my best&nbsp;work.</span></h1>
 
-  <section class="work" data-theme="coro" aria-label="Selected work">
+  <section class="work" aria-label="Selected work">
+    <!-- TAB ANIMATION: card color layer -->
+    <div class="shape" aria-hidden="true"></div>
     <div class="tabs" role="tablist" aria-label="Project fields">
       <button class="tab tab--cyber" role="tab" id="tab-coro" data-theme="coro" aria-controls="panel-coro" aria-selected="true" aria-label="Cybersecurity" title="Cybersecurity"><svg aria-hidden="true"><use href="#i-shield"/></svg></button>
       <button class="tab tab--field" role="tab" id="tab-well" data-theme="well" aria-controls="panel-well" aria-selected="false" tabindex="-1" aria-label="Field operations" title="Field operations"><svg aria-hidden="true"><use href="#i-tools"/></svg></button>
       <button class="tab tab--health" role="tab" id="tab-jsk" data-theme="jsk" aria-controls="panel-jsk" aria-selected="false" tabindex="-1" aria-label="Public health" title="Public health"><svg aria-hidden="true"><use href="#i-health"/></svg></button>
       <button class="tab tab--fin" role="tab" id="tab-bit" data-theme="bit" aria-controls="panel-bit" aria-selected="false" tabindex="-1" aria-label="Fintech" title="Fintech"><svg aria-hidden="true"><use href="#i-fin"/></svg></button>
-      <span class="connector" id="connector" aria-hidden="true">
-        <svg viewBox="0 0 32 20" preserveAspectRatio="none"><path d="M0 0H32C22 0 21 3 21 9C21 17 26 19 32 20H0C6 19 11 17 11 9C11 3 10 0 0 0Z" fill="currentColor"/></svg>
-      </span>
     </div>
 
     <div class="card">
       <!-- Coro -->
-      <div class="panel" role="tabpanel" id="panel-coro" aria-labelledby="tab-coro">
+      <div class="panel" data-theme="coro" role="tabpanel" id="panel-coro" aria-labelledby="tab-coro">
         <div class="copy">
           <div class="row"><span class="row__icon"><svg aria-hidden="true"><use href="#i-shield"/></svg></span><span class="row__tag">Cybersecurity SaaS</span></div>
           <h2>Coro</h2>
@@ -241,7 +240,7 @@
       </div>
 
       <!-- WellCheck -->
-      <div class="panel" role="tabpanel" id="panel-well" aria-labelledby="tab-well" hidden>
+      <div class="panel" data-theme="well" role="tabpanel" id="panel-well" aria-labelledby="tab-well" hidden>
         <div class="copy">
           <div class="row"><span class="row__icon"><svg aria-hidden="true"><use href="#i-tools"/></svg></span><span class="row__tag">Field operations app</span></div>
           <h2>WellCheck</h2>
@@ -256,7 +255,7 @@
       </div>
 
       <!-- Just say Know -->
-      <div class="panel" role="tabpanel" id="panel-jsk" aria-labelledby="tab-jsk" hidden>
+      <div class="panel" data-theme="jsk" role="tabpanel" id="panel-jsk" aria-labelledby="tab-jsk" hidden>
         <div class="copy">
           <div class="row"><span class="row__icon"><svg aria-hidden="true"><use href="#i-health"/></svg></span><span class="row__tag">Harm-reduction platform</span></div>
           <h2>Just say Know</h2>
@@ -271,7 +270,7 @@
 
 
       <!-- Bit -->
-      <div class="panel" role="tabpanel" id="panel-bit" aria-labelledby="tab-bit" hidden>
+      <div class="panel" data-theme="bit" role="tabpanel" id="panel-bit" aria-labelledby="tab-bit" hidden>
         <div class="copy">
           <div class="row"><span class="row__icon"><svg aria-hidden="true"><use href="#i-fin"/></svg></span><span class="row__tag">Concept · two new features</span></div>
           <img class="bitmark" src="img/bit-wordmark.webp" alt="Bit" width="480" height="264">
@@ -284,6 +283,14 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB ANIMATION: connector and border -->
+    <svg class="frame" aria-hidden="true" focusable="false">
+      <defs><clipPath id="neckClip"><rect/><rect/><rect/></clipPath></defs>
+      <path class="frame__border" fill="none" stroke="#fff" stroke-width="2"/>
+      <path class="frame__neck" fill="#fff" clip-path="url(#neckClip)"/>
+      <circle class="frame__dot" r="0" fill="#fff"/>
+    </svg>
   </section>
 </main>
 
@@ -300,28 +307,141 @@
   });
 })();
 (function(){
-  var tabs=[].slice.call(document.querySelectorAll('[role="tab"]'));
-  var panels=tabs.map(function(t){return document.getElementById(t.getAttribute('aria-controls'));});
-  var connector=document.getElementById('connector');
-  var work=document.querySelector('.work');
-  function place(i){
-    var t=tabs[i];
-    connector.style.left=(t.offsetLeft+t.offsetWidth/2-connector.offsetWidth/2)+'px';
+  /* TAB ANIMATION
+     Opening: a line drops from the selected tab, the border draws around the card,
+     the card fills, then the text and screenshot dissolve in together.
+     Switching: the connector narrows to a line with a little circle at its end, slides, and widens again on the new tab;
+     the card color cross-fades, the old content fades out and the new one fades in.
+     SPEED scales every duration below: 1 = the durations as written (chosen), 0.5 = half speed. */
+  var SPEED=1;
+  var OPEN_END=1600,SLIDE=450,SWAP=220,IN_AT=260,IN_FOR=550,COLOR=500,SWITCH_END=IN_AT+IN_FOR;
+
+  var work=document.querySelector('.work'),tabsEl=work.querySelector('.tabs'),card=work.querySelector('.card');
+  var tabs=[].slice.call(work.querySelectorAll('[role="tab"]'));
+  var panels=tabs.map(function(b){return document.getElementById(b.getAttribute('aria-controls'));});
+  var shape=work.querySelector('.shape'),border=work.querySelector('.frame__border'),neck=work.querySelector('.frame__neck'),dot=work.querySelector('.frame__dot');
+  var clip=work.querySelectorAll('#neckClip rect');
+  var still=window.matchMedia('(prefers-reduced-motion: reduce)');
+  var cur=0,t=0,started=false,sw=null,raf=0,last=0,g=null;
+
+  function cl(v){return Math.max(0,Math.min(1,v));}
+  function cubic(v){v=cl(v);return v<.5?4*v*v*v:1-Math.pow(-2*v+2,3)/2;}
+  function sine(v){return .5-.5*Math.cos(Math.PI*cl(v));}
+  function attrs(el,o){for(var n in o)el.setAttribute(n,o[n]);}
+
+  function measure(){
+    var w=work.getBoundingClientRect(),tr=tabsEl.getBoundingClientRect(),cr=card.getBoundingClientRect();
+    var xs=tabs.map(function(b){return tr.left-w.left+b.offsetLeft+b.offsetWidth/2;});
+    var L=cr.left-w.left+1,R=cr.right-w.left-1,T=cr.top-w.top+1,Z=cr.bottom-w.top-1,B=tr.bottom-w.top;
+    var radius=parseFloat(getComputedStyle(card).borderTopLeftRadius)||32;
+    radius=Math.max(8,Math.min(radius,xs[0]-30-L,R-30-xs[xs.length-1]));
+    /* Half-width of the neck where it meets a tab: never wider than the flat part of the tab's bottom edge (smaller on phones). */
+    var neckHalf=Math.min(16,tabs[0].offsetWidth/2-15);
+    g={xs:xs,L:L,R:R,T:T,Z:Z,B:B,r:radius,a:neckHalf};
   }
+  function connectorX(){
+    if(sw&&sw.ms<SLIDE)return sw.x0+(g.xs[cur]-sw.x0)*cubic(sw.ms/SLIDE);
+    return g.xs[cur];
+  }
+  /* How firmly the connector touches a tab: 1 = full neck, 0 = free line with its circle. */
+  function connection(){
+    if(!sw||sw.ms>=SLIDE)return 1;
+    var p=sw.ms/SLIDE;
+    return p<.35?sw.d0*(1-sine(p/.35)):p<.65?0:sine((p-.65)/.35);
+  }
+  function switchOpacity(){
+    if(!sw)return 1;
+    return sw.ms<SWAP?sw.o0*(1-sine(sw.ms/SWAP)):sine((sw.ms-IN_AT)/IN_FOR);
+  }
+
+  function render(){
+    if(!g)return;
+    var c=connectorX(),L=g.L,R=g.R,T=g.T,Z=g.Z,B=g.B,r=g.r;
+    var drop=cl((t-100)/200),tip=B-2+22*drop*drop,k=cl((t-300)/900);
+
+    /* The two halves of the border start at the connector, at the speed the line arrives with, and meet at the bottom. */
+    var turn=Math.PI*r+(Z-T-2*r),remR=(R-r-c-29)+turn+(R-r-c),remL=(c-29-L-r)+turn+(c-L-r),total=remR+remL;
+    function side(rem){
+      var len=37+rem,m=198/len,d=len*(m*(k*k*k-2*k*k+k)+3*k*k-2*k*k*k);
+      return{a:Math.max(0,d-37),h:Math.min(31,d*31/37)};
+    }
+    var right=side(remR),left=side(remL);
+
+    /* Full width while it touches a tab, with a 3px overlap that hides the seam. To move, it narrows to a thin
+       line with a little circle at its end, and widens again once the circle reaches the new tab. */
+    var d=connection(),w=cl((d-.4)/.6),y=B+6*(1-cl(d/.4)),lip=d<=.4?0:3*cl((d-.4)/.2),a=1+(g.a-1)*w;
+    var rd=4*(1-cl((d-.4)/.3));
+    attrs(clip[0],{x:c-20,y:B-9,width:40,height:Math.max(0,tip-B+9)});
+    attrs(clip[1],{x:c-1,y:B+19,width:right.h?right.h+1:0,height:21});
+    attrs(clip[2],{x:c-left.h,y:B+19,width:left.h?left.h+1:0,height:21});
+    attrs(dot,{cx:c,cy:y,r:rd>1&&tip>y+rd?rd:0});
+    /* The tab the line is leaving keeps its selected look until the line lets go. */
+    var held=sw&&sw.leave!==null&&sw.ms<SLIDE*.35&&d>.15?sw.leave:-1;
+    tabs.forEach(function(b,i){b.classList.toggle('is-leaving',i===held&&i!==cur);});
+    neck.setAttribute('d',
+      'M'+(c-a)+' '+(y-lip)+'H'+(c+a)+'V'+y+'C'+(c+1+5*w)+' '+y+' '+(c+1)+' '+(y+3*w)+' '+(c+1)+' '+(y+9*w)+'V'+(B+20.5)+'H'+(c-1)+'V'+(y+9*w)+'C'+(c-1)+' '+(y+3*w)+' '+(c-1-5*w)+' '+y+' '+(c-a)+' '+y+'Z'+
+      'M'+(c-1)+' '+(B+20)+'H'+(c+1)+'C'+(c+1)+' '+(T-8)+' '+(c+13)+' '+(T-1)+' '+(c+30)+' '+(T-1)+'V'+(T+1)+'C'+(c+12)+' '+(T+1)+' '+(c-1)+' '+(T-7)+' '+(c-1)+' '+(B+20)+'Z'+
+      'M'+(c-1)+' '+(B+20)+'H'+(c+1)+'C'+(c+1)+' '+(T-7)+' '+(c-12)+' '+(T+1)+' '+(c-30)+' '+(T+1)+'V'+(T-1)+'C'+(c-13)+' '+(T-1)+' '+(c-1)+' '+(T-8)+' '+(c-1)+' '+(B+20)+'Z');
+
+    function outline(ox,oy){
+      return 'H'+(R-r-ox)+'A'+r+' '+r+' 0 0 1 '+(R-ox)+' '+(T+r-oy)+'V'+(Z-r-oy)+'A'+r+' '+r+' 0 0 1 '+(R-r-ox)+' '+(Z-oy)+
+             'H'+(L+r-ox)+'A'+r+' '+r+' 0 0 1 '+(L-ox)+' '+(Z-r-oy)+'V'+(T+r-oy)+'A'+r+' '+r+' 0 0 1 '+(L+r-ox)+' '+(T-oy)+'H';
+    }
+    border.setAttribute('d','M'+(c+29)+' '+T+outline(0,0)+(c-29));
+    border.style.strokeDasharray=k>=1?'none':right.a+' '+Math.max(0,total-right.a-left.a)+' '+left.a+' 99999';
+
+    /* Card color: one shape that includes the connector triangle, so both fill together. */
+    var ox=L-1,oy=B+19,x=c-ox;
+    shape.style.left=ox+'px';shape.style.top=oy+'px';
+    shape.style.width=(R-L+2)+'px';shape.style.height=(Z+1-oy)+'px';
+    var d="path('M"+x+' 1C'+x+' 10.5 '+(x+12.5)+' '+(T-oy)+' '+(x+30)+' '+(T-oy)+outline(ox,oy)+(x-30)+'C'+(x-12.5)+' '+(T-oy)+' '+x+' 10.5 '+x+" 1Z')";
+    shape.style.webkitClipPath=d;shape.style.clipPath=d;
+    shape.style.opacity=cubic((t-330)/850);
+
+    card.style.opacity=sine((t-950)/650)*switchOpacity();
+    if(sw)sw.layer.style.opacity=sine(sw.ms/COLOR);
+  }
+
+  function show(i){panels.forEach(function(p,k){p.hidden=k!==i;});}
+  function mark(){tabs.forEach(function(b,k){var on=k===cur;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;});}
+  function addLayer(i,opacity){
+    var layer=document.createElement('div');
+    layer.className='bg bg--'+tabs[i].dataset.theme;layer.style.opacity=opacity;
+    shape.appendChild(layer);return layer;
+  }
+  function onlyLayer(i){shape.textContent='';addLayer(i,1);}
+
+  function frame(now){
+    raf=0;
+    var dt=Math.max(0,Math.min(50,now-last))*SPEED;last=now;
+    if(started&&t<OPEN_END)t=Math.min(OPEN_END,t+dt);
+    if(sw){
+      sw.ms+=dt;
+      if(sw.ms>=SWAP)show(cur);
+      if(sw.ms>=SWITCH_END){while(shape.children.length>1)shape.removeChild(shape.firstChild);sw.layer.style.opacity=1;sw=null;}
+    }
+    render();
+    if((started&&t<OPEN_END)||sw)raf=requestAnimationFrame(frame);
+  }
+  function run(){if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}}
+  function begin(){if(started)return;started=true;t=-150;run();}
+  function finish(){started=true;t=OPEN_END;sw=null;show(cur);onlyLayer(cur);render();}
+
   function select(i,focus){
-    tabs.forEach(function(t,k){
-      var on=k===i;
-      t.setAttribute('aria-selected',on?'true':'false');
-      t.tabIndex=on?0:-1;
-      panels[k].hidden=!on;
-    });
-    place(i);
-    work.dataset.theme=tabs[i].dataset.theme||'coro';
     if(focus)tabs[i].focus();
+    if(i===cur)return;
+    var x0=connectorX(),o0=switchOpacity(),d0=connection();
+    var leave=d0>.15?(sw&&sw.ms<SLIDE*.35?sw.leave:cur):null;
+    cur=i;mark();
+    if(still.matches){finish();return;}
+    if(!started){show(i);onlyLayer(i);begin();return;}
+    sw={ms:0,x0:x0,o0:o0,d0:d0,leave:leave,layer:addLayer(i,0)};
+    render();run();
   }
-  tabs.forEach(function(t,i){
-    t.addEventListener('click',function(){select(i);});
-    t.addEventListener('keydown',function(e){
+
+  tabs.forEach(function(b,i){
+    b.addEventListener('click',function(){select(i);});
+    b.addEventListener('keydown',function(e){
       var n=null;
       if(e.key==='ArrowRight')n=(i+1)%tabs.length;
       else if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;
@@ -330,10 +450,38 @@
       if(n!==null){e.preventDefault();select(n,true);}
     });
   });
-  function current(){for(var i=0;i<tabs.length;i++){if(tabs[i].getAttribute('aria-selected')==='true')return i;}return 0;}
-  window.addEventListener('resize',function(){place(current());});
-  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){place(current());});}
-  place(0);
+  /* Phone: swipe sideways on the card to move between projects. */
+  var sx=null,sy=0;
+  card.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  card.addEventListener('touchend',function(e){
+    if(sx===null)return;
+    var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;sx=null;
+    if(Math.abs(dx)>50&&Math.abs(dx)>1.5*Math.abs(dy)){
+      var n=cur+(dx<0?1:-1);
+      if(n>=0&&n<tabs.length)select(n);
+    }
+  },{passive:true});
+
+  function relayout(){measure();render();}
+  work.classList.add('is-live');
+  onlyLayer(0);mark();relayout();
+  window.addEventListener('resize',relayout);
+  if(window.ResizeObserver){var ro=new ResizeObserver(relayout);ro.observe(work);ro.observe(card);}
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(relayout);
+
+  /* The opening plays once each time the page is opened or refreshed. It never loops.
+     It starts when the tabs are on screen, or at once if the visitor is already scrolled past them. */
+  function check(){if(!started&&tabsEl.getBoundingClientRect().bottom<=window.innerHeight-80)begin();}
+  window.addEventListener('scroll',check,{passive:true});
+  window.addEventListener('resize',check);
+  /* The Back button can bring the page back as it was left: start again from the first tab. */
+  window.addEventListener('pageshow',function(e){
+    if(!e.persisted||still.matches)return;
+    cancelAnimationFrame(raf);raf=0;
+    cur=0;sw=null;started=false;t=0;
+    mark();show(0);onlyLayer(0);relayout();check();
+  });
+  if(still.matches)finish();else check();
 })();
 
 </script>
