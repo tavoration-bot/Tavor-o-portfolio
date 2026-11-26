@@ -46,8 +46,8 @@
 /* Sticky pill. The glass lives on ::before, not on the header itself, so the contact bubble can still blur on its own. */
 .site-header{position:sticky;top:var(--sh-pill-top);z-index:30}
 .site-header::before{content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;pointer-events:none;background:var(--sh-glass);-webkit-backdrop-filter:blur(var(--sh-glass-blur));backdrop-filter:blur(var(--sh-glass-blur));transition:background .2s ease,backdrop-filter .2s ease}
-/* Home and About: light grey glass at the top of the page, dark glass once scrolled so the light logo stays readable */
-.site-header--dark-scroll.is-scrolled{--sh-glass:rgba(34,34,40,.62)}
+/* Home and About: dark glass, from the top of the page and while scrolling, so the light logo stays readable */
+.site-header--dark-scroll{--sh-glass:rgba(34,34,40,.62)}
 /* Contact bubble: shape and color from the design (Figma 70:84); the tail points at the nav button */
 .site-nav__btn{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;color:inherit;cursor:pointer}
 /* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: on hover they grow 30%, then return when the pointer leaves.
