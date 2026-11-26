@@ -1,0 +1,43 @@
+/* Shared design of the project squares in the "More work" block, matching the tabs on the home page.
+   Used together with shared/tabs.js. The page keeps its own labels, spacing and focus outline. */
+.sw .chip{position:relative;width:64px;height:64px;display:grid;place-items:center;border-radius:18px;background:rgba(255,255,255,.7);opacity:.8;transition:opacity .2s ease,transform .2s ease,background-color .2s ease}
+.sw .chip svg{width:36px;height:36px;display:block;fill:currentColor;stroke:none}
+.sw--cyber .chip svg{width:37px;height:37px}
+.sw--fin .chip svg{width:38px;height:38px}
+.sw--cyber .chip{color:#B4748D;--ics:37px}
+.sw--field .chip{color:#B37895}
+.sw--health .chip{color:#B4748D}
+.sw--fin .chip{color:#D2899C;--ics:38px}
+.sw:hover .chip{opacity:1;transform:translateY(-2px)}
+
+/* The current project: its own colors and a white icon, no stroke (a white ring left dark edges at the corners on light pages) */
+.sw.on .chip{opacity:1;transform:none;border-radius:16px;background:linear-gradient(to right,var(--chip-a) var(--chip-stop-a,0%),var(--chip-b) var(--chip-stop-b,100%));color:#fff}
+.sw--cyber{--chip-a:#262260;--chip-b:#614DA6;--chip-stop-a:91.041%;--chip-stop-b:131.52%}
+.sw--field{--chip-a:#0946A5;--chip-b:#7091FF}
+.sw--health{--chip-a:#1B4A4D;--chip-b:#1F3C49}
+.sw--fin{--chip-a:#2EB3B8;--chip-b:#188087}
+
+/* Cut-out icons on the other squares: a translucent plate with the icon shape punched out, so the page shows through.
+   tabs.js adds .is-cut once it has the icon shape; without it the square simply shows its colored icon. */
+.sw:not(.on) .chip.is-cut{background:none}
+.sw:not(.on) .chip.is-cut::before{
+  content:"";position:absolute;inset:0;border-radius:18px;background:rgba(255,255,255,.7);
+  -webkit-mask-image:var(--ic),linear-gradient(#000,#000);mask-image:var(--ic),linear-gradient(#000,#000);
+  -webkit-mask-size:var(--ics,36px) var(--ics,36px),100% 100%;mask-size:var(--ics,36px) var(--ics,36px),100% 100%;
+  -webkit-mask-position:center,0 0;mask-position:center,0 0;
+  -webkit-mask-repeat:no-repeat,no-repeat;mask-repeat:no-repeat,no-repeat;
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+.sw:not(.on) .chip.is-cut svg{opacity:0}
+
+/* Light pages (class switch--light on the .switch row): the translucent white plate would disappear, so it is gray */
+.switch--light .sw:not(.on) .chip.is-cut::before,.switch--light .sw:not(.on) .chip:not(.is-cut){background:#76757D}
+
+@media (max-width:720px){
+  .sw .chip{width:54px;height:54px;border-radius:15px}
+  .sw.on .chip{border-radius:16px}
+  .sw .chip svg,.sw--cyber .chip svg,.sw--fin .chip svg{width:30px;height:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  .sw .chip{transition:none}
+}
