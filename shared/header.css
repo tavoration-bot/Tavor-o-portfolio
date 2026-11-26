@@ -123,3 +123,8 @@
   .site-header:not(.site-header--case){padding-top:23px;padding-bottom:23px} /* keeps the phone header the same height as before the old border was removed */
   .site-header:not(.site-header--case)::after{bottom:0}
 }
+
+/* Home and About: once the page is scrolled, a soft blur (no color) keeps text passing behind the logo and links from
+   competing with them. It sits on its own layer so the contact bubble is unaffected. At the very top it does not exist. */
+.site-header:not(.site-header--case).is-scrolled::before{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;bottom:-4px;pointer-events:none;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+@media (max-width:720px){.site-header:not(.site-header--case).is-scrolled::before{bottom:0}}

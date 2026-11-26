@@ -247,6 +247,7 @@ p, li, h1, h2, h3, .bubble__t, .bubble__d, .bubble__i, .legend b, .legend span {
   .ann--L.ann--noR { grid-template-columns:200px minmax(0, var(--img-max)); }
 }
 @media (max-width: 767px) {
+  .hero .shot { border-radius:7px; } /* phone: rounded less, about 2% of the width as on desktop */
   :root { --size-h1:34px; --size-h2:26px; --size-h3:20px; --size-body:16px; --space-2xl:80px; --space-xl:40px; }
   .page { padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
   .split, .moment__copy, .dive-context, .impact, .bridge, .compare { grid-template-columns:1fr; gap:var(--space-m); }

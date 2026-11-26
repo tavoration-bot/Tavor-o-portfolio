@@ -84,6 +84,10 @@
       initBubble(header);
       initLogo(header,current==='home');
       if(header.classList.contains('site-header--case')){themeFromPage(header)}
+      else{
+        var mark=function(){header.classList.toggle('is-scrolled',window.scrollY>4)};
+        window.addEventListener('scroll',mark,{passive:true});window.addEventListener('pageshow',mark);mark();
+      }
     }
   });
 })();

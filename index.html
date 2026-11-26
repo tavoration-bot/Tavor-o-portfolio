@@ -145,6 +145,8 @@
   .shot--jsk{left:476px;top:41px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
   .shot--jsk img{position:absolute;display:block;height:auto;border-radius:15px}
   .shot--well img{position:absolute;display:block;height:auto}
+  /* the middle screen file has square corners; the side screens have them built in (31px of 375x853) */
+  .shot--well img[src$="wc-home.webp"]{border-radius:8.3% / 3.6%}
   .work .panel[data-theme="bit"] .row__icon{color:#E6F6F1}
   .copy .bitmark{display:block;width:110px;height:60.5px;margin:-4px 0 -2px}
   .shot--bit{left:476px;top:41px;width:411px;height:306px;border-radius:20px;background:rgba(230,246,241,.55)}
@@ -182,6 +184,8 @@
   }
   @media (max-width:720px){
     :root{--gutter:20px}
+    /* phone: the screenshot is small, so its corners are rounded less (about 2% of its width, as on desktop) */
+    .shot:not(.shot--jsk):not(.shot--bit){border-radius:6px}
     .hero{padding:138px var(--gutter) 56px}
     .hero__name{font-size:44px;line-height:52px}
     .hero__lede{font-size:22px;line-height:32px;letter-spacing:.01em}
