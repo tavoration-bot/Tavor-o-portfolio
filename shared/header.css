@@ -107,7 +107,9 @@
 /* small screens: the same pill, logo centered with the three links centered under it */
 @media (max-width:720px){
   .site-header{--sh-pill-top:12px;height:auto;margin:12px 12px 4px;padding:14px 20px 12px;border-radius:44px;flex-direction:column;justify-content:center;align-items:center;gap:8px}
-  .site-logo{width:196px;height:38px;margin-top:-8px;margin-bottom:-5px}
+  /* left:-8px: the open "Tavor Olivier" frame is 16px wider on the right than the final logo, so the whole line moves 8px left
+     to sit between the two and stay close to the centre of the tabs through the animation */
+  .site-logo{width:196px;height:38px;margin-top:-8px;margin-bottom:-5px;left:-8px}
   /* the logo's drawing box is 307 wide but the ink never passes 229 (final pose 195), so trim the empty part: no sideways scroll on phones */
   .nlin{width:240px;overflow-x:clip}
   .site-nav{gap:30px}
