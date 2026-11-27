@@ -1,15 +1,19 @@
+/* Inter Light (300), Basic Latin subset, for the header links and the bubble title. SIL Open Font License.
+   Declared here so every page that loads the header has it. */
+@font-face{font-family:"Inter";font-weight:300;font-style:normal;font-display:swap;src:url("fonts/Inter-Light-latin.woff") format("woff")}
 /* Shared site header: logo, Work, AbouTavor, ContacTavor and the contact bubble.
    Used by every page through shared/header.js. Self-contained: its class names start with
    site- and it sets its own basics, so a page's own styles (case studies included) don't leak in. */
 .site-header{
   --sh-gutter:100px;
-  --sh-font-nav:"Instrument Sans","Manrope",system-ui,sans-serif;
-  --sh-font-heading:"IBM Plex Sans",system-ui,sans-serif;
-  /* the pill's glass and ink (text and logo color); Home/About at the top of the page */
-  --sh-ink:#dfdee0;
-  --sh-glass:rgba(255,255,255,.35);
-  --sh-glass-blur:22px;
+  --sh-font-nav:"Inter","Instrument Sans",system-ui,sans-serif;
+  /* ink = text and logo color */
+  --sh-ink:#f5f5fa;
   --sh-pill-top:24px;
+  /* the glass, shared by the pill and the contact bubble: fill (top/bottom of a vertical wash), blur, saturation, brightness, drop shadow */
+  --lg-blur:10px;--lg-sat:1.4;--lg-bri:1.05;
+  --lg-wash-top:rgba(36,36,41,.48);--lg-wash-bot:rgba(36,36,41,.48);
+  --lg-shadow:0 3px 10px rgba(0,0,0,.18);
   color:var(--sh-ink);font-family:"Manrope",system-ui,sans-serif;font-size:16px;line-height:normal;text-align:left;-webkit-font-smoothing:auto;
 }
 @media (max-width:1100px){.site-header{--sh-gutter:40px}}
@@ -18,18 +22,19 @@
 .site-header :where(a){color:inherit}
 .site-header :where(button){font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .site-header :where(ul){list-style:none}
-/* Floating pill (Figma 137:1893): 52px tall, inset by --sh-gutter. Its margins add up to the old 82px (24+52+6),
-   so the page under it does not move. */
-.site-header{display:flex;align-items:center;justify-content:space-between;height:52px;margin:24px var(--sh-gutter) 6px;padding:0 70px;border-radius:129px}
-.site-logo{position:relative;display:block;width:272px;height:38px;margin-top:-2px;border-radius:4px;flex:none}
+/* Floating pill: 52px tall, inset by --sh-gutter. Its margins add up to the old 82px (24+52+6), so the page under it does not move.
+   64px on the right, so the open bubble (centred under ContacTavor) ends exactly at the pill's right edge. */
+.site-header{display:flex;align-items:center;justify-content:space-between;height:52px;margin:24px var(--sh-gutter) 6px;padding:0 64px 0 32px;border-radius:129px}
+
+/* Logo: TO monogram -> Tavor Olivier. The name is Jura Light 24, drawn as outlines (.nljura), so no font file is needed. */
+.site-logo{position:relative;display:block;width:240px;height:38px;margin-top:-7px;border-radius:4px;flex:none}
 .nlin{position:absolute;left:0;top:0;width:307px;height:38px;transform-origin:0 0}
 .nlin>*{position:absolute;left:0;top:0;display:block}
-.nlt{color:var(--sh-ink);font-family:"Michroma",sans-serif;font-size:32px;line-height:normal;white-space:nowrap}
 .site-logo svg path{fill:var(--sh-ink)}
 .nlini{width:307px;height:38px;opacity:0}
-.nlini .nlav{position:absolute;left:18px;top:-4.34px;width:89px;height:38px;opacity:1}
-.nlav .nlt,.nlli .nlt{position:absolute;left:0;top:23px;transform:translateY(-50%)}
-.nlli{left:155.52px;top:-4.34px;width:88px;height:46px;opacity:0}
+.nlini .nlav{position:absolute;left:0;top:0;width:307px;height:38px;opacity:1}
+.nlli{left:0;top:0;width:307px;height:38px;opacity:0}
+.nljura{position:absolute;left:0;top:0}
 .site-logo.anim .nlini{animation:nlIni 3.15s linear 1 both}
 .site-logo.anim .nlav{animation:nlAv 3.15s linear 1 both}
 .site-logo.anim .nlli{animation:nlLi 3.15s linear 1 both}
@@ -39,17 +44,33 @@
 @keyframes nlAv{0%{opacity:0}15.873%{opacity:0;animation-timing-function:ease-in-out}30.159%{opacity:1}100%{opacity:1}}
 @keyframes nlLi{0%{opacity:0}33.333%{opacity:0;animation-timing-function:ease-in-out}46.032%{opacity:1}58.73%{opacity:1;animation-timing-function:ease-in-out}76.19%{opacity:0}100%{opacity:0}}
 @keyframes nlFin{0%{opacity:0}82.54%{opacity:0;animation-timing-function:ease-in-out}93.651%{opacity:1}100%{opacity:1}}
-@keyframes nlO{0%{transform:translateX(0)}9.524%{transform:translateX(0);animation-timing-function:ease-in-out}33.333%{transform:translateX(104.469px)}58.73%{transform:translateX(104.469px);animation-timing-function:ease-in-out}82.54%{transform:translateX(0)}100%{transform:translateX(0)}}
-.site-nav{display:flex;gap:40px;align-items:center}
-.site-nav a{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;text-decoration:none}
+@keyframes nlO{0%{transform:translateX(0)}9.524%{transform:translateX(0);animation-timing-function:ease-in-out}33.333%{transform:translateX(97.289px)}58.73%{transform:translateX(97.289px);animation-timing-function:ease-in-out}82.54%{transform:translateX(0)}100%{transform:translateX(0)}}
 
-/* Sticky pill. The glass lives on ::before, not on the header itself, so the contact bubble can still blur on its own. */
+/* Tabs: Inter Light 16/20, tracking .1 */
+.site-nav{display:flex;gap:40px;align-items:center}
+.site-nav>a,.site-nav__btn{font-family:var(--sh-font-nav);font-weight:300;font-size:16px;line-height:20px;letter-spacing:.1px;text-decoration:none;color:inherit;cursor:pointer}
+
+/* Sticky pill. The glass lives on pseudo elements, not on the header itself, so the contact bubble can still blur on its own.
+   ::before = the glass body (fill, blur, drop shadow, two inner shadows); ::after = the 1px rim, a vertical gradient. */
 .site-header{position:sticky;top:var(--sh-pill-top);z-index:30}
-.site-header::before{content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;pointer-events:none;background:var(--sh-glass);-webkit-backdrop-filter:blur(var(--sh-glass-blur));backdrop-filter:blur(var(--sh-glass-blur));transition:background .2s ease,backdrop-filter .2s ease}
-/* Home and About: dark glass, from the top of the page and while scrolling, so the light logo stays readable */
-.site-header--dark-scroll{--sh-glass:rgba(34,34,40,.62)}
-/* Contact bubble: shape and color from the design (Figma 70:84); the tail points at the nav button */
-.site-nav__btn{font-family:var(--sh-font-nav);font-size:20px;line-height:28px;font-weight:400;color:inherit;cursor:pointer}
+.site-header::before,.site-bubble::before{
+  content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,var(--lg-wash-top),var(--lg-wash-bot));
+  -webkit-backdrop-filter:blur(var(--lg-blur)) saturate(var(--lg-sat)) brightness(var(--lg-bri));
+  backdrop-filter:blur(var(--lg-blur)) saturate(var(--lg-sat)) brightness(var(--lg-bri));
+  box-shadow:var(--lg-shadow),inset 0 1px 2px rgba(255,255,255,.19),inset 0 -1px 2px rgba(255,255,255,.10);
+}
+.site-header::before{transition:background .25s ease,box-shadow .25s ease,backdrop-filter .25s ease,-webkit-backdrop-filter .25s ease}
+.site-header::after,.site-bubble::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
+  background:linear-gradient(180deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.14) 28%,rgba(255,255,255,.07) 65%,rgba(255,255,255,.40) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+}
+.site-header::after{z-index:-1}
+/* Home and About, once scrolled: a smoky, darker glass so the light logo and links stay readable over the bright portrait and images */
+.site-header--dark-scroll.is-scrolled{--lg-wash-top:rgba(40,40,50,.64);--lg-wash-bot:rgba(26,26,34,.60);--lg-blur:26px;--lg-sat:1.5;--lg-bri:.85}
+
 /* The three tabs (Work, AbouTavor, ContacTavor) all behave the same: on hover they grow 30%, then return when the pointer leaves.
    ContacTavor stays grown while its bubble is open. No color change, no weight change.
    Hover only applies where there is a real pointer, so a tap on a phone never leaves a tab stuck in the hover state. */
@@ -60,40 +81,36 @@
 }
 .site-nav__btn[aria-expanded="true"]{transform:scale(var(--sh-grow))}
 .site-nav>a:focus-visible,.site-nav__btn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
+
+/* Contact bubble: a glass capsule, 223 x 79, radius 44, hanging 10px under the pill (placed by header.js). No tail.
+   Same glass as the pill (the ::before/::after rules above), from the pill's --lg-* values, so it follows every page and the scrolled state. */
 .site-bubble{
-  --ax:300px;
-  position:absolute;left:0;top:0;z-index:20;width:374px;max-width:calc(100vw - 24px);min-height:115px;
-  display:flex;flex-direction:column;justify-content:center;padding:20px 32px;
-  border-radius:14px;
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  transform-origin:var(--ax) -23px;
-  opacity:0;visibility:hidden;transform:translateY(-8px) scale(.94);
+  --ax:111px;
+  position:absolute;left:0;top:0;z-index:20;width:223px;padding:15px 0 13px;border-radius:44px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;
+  color:var(--sh-ink);transform-origin:var(--ax) 0;
+  opacity:0;visibility:hidden;transform:translateY(-6px) scale(.94);
   transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.3,1),visibility 0s linear .24s;
 }
 .site-bubble.is-open{opacity:1;visibility:visible;transform:none;transition-delay:0s}
-/* body and tail share one black 80% layer (plus the 14px backdrop blur on .site-bubble), so the join has no seam; the 1px pink outline is drawn on top at full strength */
-.site-bubble__bg{position:absolute;inset:0;z-index:-1;border-radius:inherit;background:#000;opacity:.8;pointer-events:none}
-.site-bubble__tail{position:absolute;bottom:calc(100% - .5px);left:calc(var(--ax) - 23px);display:block;fill:#000;overflow:visible}
-.site-bubble__ring{position:absolute;inset:0;border:1px solid #fff;border-radius:inherit;pointer-events:none;clip-path:polygon(0 0,calc(var(--ax) - 23px) 0,calc(var(--ax) - 23px) 3px,calc(var(--ax) + 23px) 3px,calc(var(--ax) + 23px) 0,100% 0,100% 100%,0 100%)}
-.site-bubble__line{position:absolute;bottom:calc(100% - .5px);left:calc(var(--ax) - 23px);display:block;fill:none;stroke:#fff;stroke-width:1;stroke-linejoin:round;overflow:visible;pointer-events:none}
-.site-bubble h2{color:#fff;letter-spacing:normal;font-family:var(--sh-font-heading);font-weight:300;font-size:24px;line-height:34px;margin-bottom:12px;white-space:nowrap;text-align:center}
-.site-bubble ul{display:flex;gap:28px;list-style:none;justify-content:center}
-.site-bubble a{color:#fff;font-size:18px;line-height:25px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-color:rgba(255,255,255,.75);transition:text-decoration-color .15s ease,text-decoration-thickness .15s ease}
-.site-bubble a:hover{color:#fff;text-decoration-thickness:2px;text-decoration-color:#fff}
-@media (max-width:720px){
-  .site-nav__btn{font-size:17px}
-  .site-bubble{width:max-content;min-height:0;padding:16px 26px 18px}
-  .site-bubble h2{white-space:nowrap;font-size:20px;line-height:28px;margin-bottom:8px}
-  .site-bubble ul{gap:24px}
-  .site-bubble a{font-size:16px;line-height:22px}
-}
+.site-bubble h2{font-family:var(--sh-font-nav);font-weight:400;font-size:15px;line-height:20px;letter-spacing:.1px;color:var(--sh-ink);white-space:nowrap;text-align:center}
+.site-bubble ul{display:flex;align-items:center;justify-content:center;gap:29px}
+.site-bubble li{display:flex}
+.site-bubble a{display:flex;align-items:center;justify-content:center;height:25px;text-decoration:none;color:var(--sh-ink);position:relative}
+/* a bigger tap area than the 25px icon, without moving anything */
+.site-bubble a::after{content:"";position:absolute;inset:-10px -9px}
+.site-bubble .ic{display:block;fill:color-mix(in srgb,var(--sh-ink) 88%,transparent);opacity:.8;transition:opacity .15s ease,transform .18s ease}
+.site-bubble a:hover .ic,.site-bubble a:focus-visible .ic{opacity:1;transform:scale(1.08)}
+.site-bubble a:focus-visible{outline:2px solid var(--sh-ink);outline-offset:6px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){.site-bubble{transition:none}}
-/* header on small screens (not designed in Figma): the same pill, logo centered with the three links centered under it */
+
+/* small screens: the same pill, logo centered with the three links centered under it */
 @media (max-width:720px){
-  .site-header{--sh-pill-top:12px;height:auto;margin:12px 12px 4px;padding:14px 20px 12px;border-radius:44px;flex-direction:column;justify-content:center;align-items:center;gap:6px}
-  .site-logo{width:195px;height:27px;margin-top:0}
-  .nlin{transform:scale(.7166)}
-  .site-nav{gap:24px}.site-nav a{font-size:17px}
+  .site-header{--sh-pill-top:12px;height:auto;margin:12px 12px 4px;padding:14px 20px 12px;border-radius:44px;flex-direction:column;justify-content:center;align-items:center;gap:8px}
+  .site-logo{width:196px;height:38px;margin-top:-8px;margin-bottom:-5px}
+  /* the logo's drawing box is 307 wide but the ink never passes 229 (final pose 195), so trim the empty part: no sideways scroll on phones */
+  .nlin{width:240px;overflow-x:clip}
+  .site-nav{gap:30px}
 }
 @media (prefers-reduced-motion:reduce){
   .site-nav>a,.site-nav__btn{transition:none}
@@ -101,18 +118,15 @@
 }
 
 /* Case-study variant (every page except Home and About): no Work tab, because "All work" is in the page's breadcrumb.
-   The pill and the contact bubble take the page's own colors (--sh-bg-rgb and --sh-fg are set from the page by header.js).
-   No outline and no shadow on the pill. Light pages (site-header--light) get a slightly tinted glass, or the pill
-   would be the same color as the page and disappear. */
-.site-header--case{--sh-ink:var(--sh-fg,#fff);--sh-glass:color-mix(in srgb,var(--sh-fg,#fff) 35%,transparent);--sh-glass-blur:22px}
-.site-header--case.site-header--light{--sh-glass:color-mix(in srgb,color-mix(in srgb,var(--sh-fg,#000) 5%,rgb(var(--sh-bg-rgb,255,255,255))) 35%,transparent)}
+   The ink comes from the page (--sh-bg-rgb and --sh-fg are set from the page by header.js). The bubble has no rules of its own:
+   it uses --sh-ink and the pill's glass, so it follows dark and light pages by itself. */
+.site-header--case{--sh-ink:var(--sh-fg,#fff)}
 .site-header--case .site-nav>a:focus-visible,.site-header--case .site-nav__btn:focus-visible{outline-color:var(--sh-fg,#fff)}
-/* the contact bubble, in the page's colors */
-.site-header--case .site-bubble__bg{background:rgb(var(--sh-bg-rgb,15,15,26));opacity:.95}
-.site-header--case .site-bubble__tail{fill:rgb(var(--sh-bg-rgb,15,15,26))}
-.site-header--case .site-bubble{box-shadow:0 10px 32px color-mix(in srgb,var(--sh-fg,#fff) 16%,transparent)}
-.site-header--case .site-bubble__ring{border-color:var(--sh-fg,#fff)}
-.site-header--case .site-bubble__line{stroke:var(--sh-fg,#fff)}
-.site-header--case .site-bubble h2{color:var(--sh-fg,#fff)}
-.site-header--case .site-bubble a{color:var(--sh-fg,#fff);text-decoration-color:color-mix(in srgb,var(--sh-fg,#fff) 75%,transparent)}
-.site-header--case .site-bubble a:hover{color:var(--sh-fg,#fff);text-decoration-color:var(--sh-fg,#fff)}
+/* dark pages: a clear glass with a white wash; once scrolled, the smoky glass so the light logo and links stay readable over bright screenshots */
+.site-header--case:not(.site-header--light){--lg-wash-top:rgba(255,255,255,.18);--lg-wash-bot:rgba(255,255,255,.07)}
+.site-header--case:not(.site-header--light).is-scrolled{--lg-wash-top:rgba(30,30,44,.68);--lg-wash-bot:rgba(16,16,26,.62);--lg-blur:26px;--lg-sat:1.5;--lg-bri:.8}
+/* light pages (site-header--light): a light white wash and a softer shadow */
+.site-header--case.site-header--light{
+  --lg-wash-top:rgba(255,255,255,.55);--lg-wash-bot:rgba(255,255,255,.28);--lg-bri:1.02;
+  --lg-shadow:0 8px 24px rgba(40,50,80,.14),0 1px 4px rgba(40,50,80,.10);
+}
